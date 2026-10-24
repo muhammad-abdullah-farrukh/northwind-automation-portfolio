@@ -1,0 +1,273 @@
+{
+  "name": "InvoiceIQ - 1 Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## InvoiceIQ intake\nTwo ways in: an email with PDF attachments (Gmail, polled every minute) or the upload form. Each PDF starts its own run of **2 Process invoice**, so each one gets its own OpsCore callback. Processed emails get the Gmail label **invoices** and are not picked up again.\n\nDemo mailbox filter: `from:me subject:invoice` (the test invoices are emailed to the owner's own inbox). With a dedicated AP mailbox, drop `from:me`.",
+        "height": 210,
+        "width": 640,
+        "color": 7
+      },
+      "id": "23cd0f41-9da2-4af8-a012-d77f1de6dba1",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -330
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "from:me subject:invoice has:attachment filename:pdf -label:invoices",
+          "readStatus": "both"
+        },
+        "options": {
+          "downloadAttachments": true,
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        }
+      },
+      "id": "d03dc741-1804-4f80-8b2e-5afa57eab5bf",
+      "name": "New invoice email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YDXfApN2odjnWTHz",
+          "name": "Gmail - InvoiceIQ"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per PDF attachment, with the email's metadata. Non-PDF attachments are ignored.\nconst out = [];\nfor (const item of $input.all()) {\n  const m = item.json;\n  const from = m.from?.value?.[0]?.address || m.from?.text || '';\n  for (const [key, bin] of Object.entries(item.binary || {})) {\n    const name = bin.fileName || key;\n    if (bin.mimeType !== 'application/pdf' && !/\\.pdf$/i.test(name)) continue;\n    out.push({\n      json: {\n        source: 'email', source_ref: m.id, source_email: from, subject: m.subject || '', file_name: name,\n        received_at: m.date ? new Date(m.date).toISOString() : new Date().toISOString(),\n      },\n      binary: { file: bin },\n    });\n  }\n}\nreturn out;\n"
+      },
+      "id": "3270ae20-473f-49d5-81cc-702f65f95c18",
+      "name": "One item per PDF (email)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "D9nN9vOhnGkx79En",
+          "mode": "id",
+          "cachedResultName": "InvoiceIQ - 2 Process invoice"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "ad49a133-f654-4f77-a849-a6aa4d2c0447",
+      "name": "Process each invoice (email)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.source_ref }}",
+        "labelIds": [
+          "Label_2"
+        ]
+      },
+      "id": "3d9f382c-c64f-4975-8182-26b61c22c036",
+      "name": "Label email 'invoices'",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YDXfApN2odjnWTHz",
+          "name": "Gmail - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "webhookId": "4581ee88-fa75-4570-8d3b-43c68e907400"
+    },
+    {
+      "parameters": {
+        "formTitle": "Submit a supplier invoice",
+        "formDescription": "Northwind Digital accounts payable. Upload one or more PDF invoices; each one is checked and either filed automatically or sent to #finance-approvals for review.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Invoice PDF",
+              "fieldType": "file",
+              "multipleFiles": true,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Your email",
+              "fieldType": "email",
+              "placeholder": "so we can reach you about this invoice"
+            }
+          ]
+        },
+        "options": {
+          "path": "invoiceiq-upload",
+          "buttonLabel": "Submit invoice",
+          "appendAttribution": false
+        }
+      },
+      "id": "5c37114f-4fb1-4f55-bf75-4751a621e4ac",
+      "name": "Invoice upload form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "ab6ee916-cec8-4251-9ac3-8adcd68f70c0"
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per uploaded PDF.\nconst out = [];\nfor (const item of $input.all()) {\n  const f = item.json;\n  for (const [key, bin] of Object.entries(item.binary || {})) {\n    const name = bin.fileName || key;\n    if (bin.mimeType !== 'application/pdf' && !/\\.pdf$/i.test(name)) continue;\n    out.push({\n      json: {\n        source: 'form', source_ref: $execution.id, source_email: f['Your email'] || '', subject: '', file_name: name,\n        received_at: f.submittedAt ? new Date(f.submittedAt).toISOString() : new Date().toISOString(),\n      },\n      binary: { file: bin },\n    });\n  }\n}\nreturn out;\n"
+      },
+      "id": "f9f42f2a-8774-41cc-900b-f84bb0de8ca6",
+      "name": "One item per PDF (form)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "D9nN9vOhnGkx79En",
+          "mode": "id",
+          "cachedResultName": "InvoiceIQ - 2 Process invoice"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "3756cb57-6b95-435d-b75e-6f5abb5353f7",
+      "name": "Process each invoice (form)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "New invoice email": {
+      "main": [
+        [
+          {
+            "node": "One item per PDF (email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per PDF (email)": {
+      "main": [
+        [
+          {
+            "node": "Process each invoice (email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process each invoice (email)": {
+      "main": [
+        [
+          {
+            "node": "Label email 'invoices'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice upload form": {
+      "main": [
+        [
+          {
+            "node": "One item per PDF (form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per PDF (form)": {
+      "main": [
+        [
+          {
+            "node": "Process each invoice (form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "errorWorkflow": "o00uRb21QVfbgsh9"
+  },
+  "pinData": {},
+  "meta": {},
+  "tags": []
+}

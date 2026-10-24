@@ -1,0 +1,114 @@
+name: opscore
+
+x-app: &app
+  build: .
+  image: opscore-app:dev
+  env_file: .env
+  environment:
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+    REDIS_URL: redis://redis:6379/0
+  volumes:
+    - ./:/app # dev: code edits apply after `docker compose restart api worker`
+    - ../leadrouter:/leadrouter:ro # the lead eval runs LeadRouter's Code steps and test leads (DECISIONS D29)
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "127.0.0.1:5433:5432" # host access for tools; n8n reaches it via host.docker.internal (P5)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    <<: *app
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *app
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  worker:
+    <<: *app
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=INFO", "--concurrency=2"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  ollama:
+    # Local LLM on the GPU (DECISIONS D17). OpsCore calls it at http://ollama:11434/v1;
+    # n8n (P5) can reach it at http://host.docker.internal:11434.
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_KEEP_ALIVE: "-1" # keep the model in VRAM: no cold start per lead
+      OLLAMA_MAX_LOADED_MODELS: "2" # 6 GB card: qwen3 4B (~3.2 GB) + nomic-embed-text (~0.5 GB) for InvoiceIQ
+      OLLAMA_NUM_PARALLEL: "1"
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  cloudflared:
+    # Cloudflare quick tunnel: public https URL, no account. The URL changes on every restart;
+    # print it with: docker compose logs cloudflared | Select-String trycloudflare
+    image: cloudflare/cloudflared:latest
+    command: ["tunnel", "--no-autoupdate", "--url", "http://api:8000"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ollama:

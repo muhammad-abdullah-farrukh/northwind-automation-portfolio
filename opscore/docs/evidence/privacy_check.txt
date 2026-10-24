@@ -1,0 +1,62 @@
+Privacy sign-off log: screenshots and video takes
+==================================================
+Each image is checked by eye before it goes into docs/screenshots/.
+Each note names only the file and the region that was cropped or left out, never the value that was hidden.
+Lead names, emails and companies visible in the images are the synthetic test leads (fictional people; company domains used only as enrichment targets).
+
+2026-10-21: LeadRouter screenshots. Checked by eye: 11 files. Crops applied:
+  leadrouter_canvas.png           - Zapier trial banner, top bar and toolbar cropped; canvas only
+  leadrouter_mainline.png         - trial banner, top bar and toolbar cropped; canvas only
+  leadrouter_ai_step.png          - step window only; app top bar and left run sidebar cropped
+  leadrouter_score_step.png       - step window only; app top bar and left run sidebar cropped
+  leadrouter_paths_rule.png       - step window header and rules only; rest of page cropped
+  leadrouter_run_trace_hot.png    - trial banner, top bar and toolbar cropped; canvas only
+  leadrouter_log_table.png        - Tables top bar (account avatar) and status banner cropped; grid only
+  leadrouter_slack_sales_hot.png  - workspace sidebar and top search bar cropped; channel title + one day of messages
+  leadrouter_ops_alert.png        - workspace sidebar and top search bar cropped; channel title + one message
+  leadrouter_gmail_draft.png      - draft window header, To, Subject and body only; mailbox list, search bar and account avatar left out
+  leadrouter_google_form.png      - signed-in account line under the description removed; title card and question cards only
+  Not captured: the Gmail drafts list (it contains drafts unrelated to the project).
+
+2026-10-22: LeadRouter screenshots (Zoho web app did not load, so the deal is shown from the Zapier side). Checked by eye: 2 files. Crops applied:
+  leadrouter_zoho_deal_step.png   - step window only; trial banner, app top bar and canvas cropped
+  leadrouter_hot_lead_collage.png - built only from leadrouter_slack_sales_hot.png, leadrouter_gmail_draft.png and leadrouter_zoho_deal_step.png (crops as logged above); no new screen content
+
+2026-10-22: LeadRouter video take. Watched in full and accepted by the owner; frames checked by eye before that. 1 file:
+  Recording_Northwind2_trimmed.mp4 (46.3 s, 1920x900, no audio), cut from the raw take Recording_Northwind2.mp4, which is not used anywhere.
+  Cut or cropped:
+    browser debugging bar along the top of every frame - cropped
+    desktop notification popup (raw take 76-89 s)    - cut
+    assistant chat window (raw take 134-137 s)        - cut
+    audio track                                       - removed
+  Blurred:
+    browser-extension status pill near the bottom edge         - blurred in every live segment
+    tunnel URL in the FORM-4 #ops-alerts message (two lines)   - blurred in every frame of that segment
+  Stills for shots the raw take missed:
+    #sales-hot channel (5 s)      - screenshot from the FORM-3 run; sidebar shows only channel names and the anonymous workspace user
+    LeadRouter log grid (5 s)     - screenshot from the FORM-3 run; Tables top bar cropped, grid only
+    leadrouter_gmail_draft.png (4 s) - crops as logged on 2026-10-21; this is the T01 draft from the 19 Oct test run, not FORM-3's
+  Not shown: the Gmail mailbox or drafts list, account menus, the form's responder link.
+
+2026-10-24: InvoiceIQ video take (recorded 2026-10-23). Watched in full and accepted by the owner; frames checked by eye before that. 1 file:
+  Recording_Northwind3_trimmed.mp4 (61.8 s, 1916x900, no audio), cut from the raw take Recording_Northwind3.mp4, which is not used anywhere.
+  Cut or cropped:
+    browser debugging bar along the top of every frame              - cropped
+    n8n credentials list at the start (raw take 0-22 s)              - cut
+    assistant chat window (raw take about 4 s)                       - cut
+    Google Sheets promo popup                                        - cut
+    #ops-alerts before scrolling up (older LeadRouter alerts)        - cut
+    wait while the local model answered (about 30 s)                 - cut
+    audio track                                                      - removed
+  Blurred:
+    Google Sheets account avatar and its hover tooltip, top-right corner - blurred in both sheet segments (every frame checked)
+  Not shown: account menus, the n8n user menu, the Slack Review form.
+
+2026-10-24: OpsCore video take. Watched in full and accepted by the owner; frames checked by eye before that. 1 file:
+  Recording_Northwind4_trimmed.mp4 (59.0 s, 1916x900, no audio), cut from the raw take Recording_Northwind4.mp4, which is not used anywhere.
+  Cut or cropped:
+    browser debugging bar along the top of every frame   - cropped
+    desktop notification popup near the end of the take  - cut
+    audio track                                          - removed
+  Blurred: nothing needed.
+  Shown: local pages only (architecture diagram, Swagger UI, captured test and eval-gate output, eval report, CI workflow). The only credential-like value on screen is the throwaway CI database password already in .github/workflows/ci.yml.

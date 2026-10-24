@@ -1,0 +1,102 @@
+[
+  {
+    "domain": "buffer.com",
+    "ms": 2606,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Social media SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "ghost.org",
+    "ms": 2057,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Content Publishing SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "plausible.io",
+    "ms": 1607,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Web Analytics SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "transistor.fm",
+    "ms": 2007,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Podcast Hosting SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "kit.com",
+    "ms": 2267,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Email Marketing SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "usefathom.com",
+    "ms": 2951,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Web Analytics SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "simpleanalytics.com",
+    "ms": 4834,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Web Analytics SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "buttondown.com",
+    "ms": 2294,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Newsletter SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "basecamp.com",
+    "ms": 2892,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Project Management SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "python.org",
+    "ms": 8300,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Programming Language",
+    "size_band_guess": "unknown",
+    "rule_score": 55,
+    "note": "industry and size are LLM guesses; mx lookup timed out"
+  }
+]

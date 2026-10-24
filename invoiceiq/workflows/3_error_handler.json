@@ -1,0 +1,143 @@
+{
+  "name": "InvoiceIQ - 3 Error handler",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## InvoiceIQ error handler\nSet as the *error workflow* of workflows 1, 2 and 4. Every failed execution is logged to `finance.errors` and posted to **#ops-alerts** with a link to the execution.",
+        "height": 160,
+        "width": 520,
+        "color": 3
+      },
+      "id": "e2f68a0e-0267-4db0-9787-f24023f54344",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "67793a97-fbd8-4ac0-9980-2548fca49681",
+      "name": "On workflow error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const e = $json;\nconst workflow = e.workflow?.name || 'unknown workflow';\nconst node = e.execution?.lastNodeExecuted || e.trigger?.error?.node?.name || null;\nconst message = String(e.execution?.error?.message || e.trigger?.error?.message || 'unknown error').slice(0, 1000);\nconst execution_url = e.execution?.url || null;\nconst slack_text = [\n  `:rotating_light: *${workflow}* failed${node ? ` at *${node}*` : ''}`,\n  `> ${message}`,\n  execution_url ? `<${execution_url}|Open the execution in n8n>` : '',\n].filter(Boolean).join('\\n');\nreturn [{ json: { workflow, node, message, execution_url, slack_text } }];\n"
+      },
+      "id": "b959858a-5298-4ee1-9040-bf7cdf04db31",
+      "name": "Format alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into finance.errors (workflow, node, message, execution_url)\nselect j->>'workflow', j->>'node', j->>'message', j->>'execution_url'\nfrom (select $1::jsonb as j) p\nreturning id",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify({ workflow: $json.workflow, node: $json.node, message: $json.message, execution_url: $json.execution_url }) ] }}"
+        }
+      },
+      "id": "a4ac964f-de66-4f6f-a5e4-0d56f7808b2c",
+      "name": "Log to finance.errors",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        -100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "id6KMgtuW0bKZRBj",
+          "name": "Postgres - finance writer"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#ops-alerts",
+          "mode": "name"
+        },
+        "text": "={{ $json.slack_text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "unfurl_links": false
+        }
+      },
+      "id": "67040eb7-f5dd-466d-9509-fac0a6bf21ae",
+      "name": "Alert #ops-alerts",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        480,
+        100
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "pCj2nk1dA4VTMlZL",
+          "name": "Slack - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "webhookId": "8df20459-c652-4e5b-8b05-6967ddc70add"
+    }
+  ],
+  "connections": {
+    "On workflow error": {
+      "main": [
+        [
+          {
+            "node": "Format alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format alert": {
+      "main": [
+        [
+          {
+            "node": "Log to finance.errors",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert #ops-alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {},
+  "tags": []
+}

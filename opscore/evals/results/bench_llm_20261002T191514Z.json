@@ -1,0 +1,341 @@
+{
+  "ran_at": "2026-10-02T19:15:14.990647+00:00",
+  "provider": "openai_compat",
+  "base_url": "http://ollama:11434/v1",
+  "page_text_max_chars": 2000,
+  "reasoning_effort": "none",
+  "results": [
+    {
+      "model": "qwen3:4b-instruct-2507-q4_K_M",
+      "load_ms": 491,
+      "enrich": {
+        "sites": 0,
+        "valid": 0,
+        "llm_ms_p50": null,
+        "llm_ms_max": null,
+        "fetch_plus_llm_ms_p95": null,
+        "rows": []
+      },
+      "extract": {
+        "docs": 20,
+        "exact_match": 14,
+        "status_as_expected": 18,
+        "ms_p50": 6251,
+        "dev": {
+          "docs": 5,
+          "exact_match": 4,
+          "status_as_expected": 4,
+          "repairs": 2,
+          "ms_p50": 7128,
+          "ms_max": 13803,
+          "field_errors": {
+            "line_items.description": 1,
+            "line_items.qty": 1
+          }
+        },
+        "held_out": {
+          "docs": 15,
+          "exact_match": 10,
+          "status_as_expected": 14,
+          "repairs": 2,
+          "ms_p50": 5778,
+          "ms_max": 15825,
+          "field_errors": {
+            "line_items.description": 9,
+            "line_items.qty": 1,
+            "invoice_no": 1
+          }
+        },
+        "rows": [
+          {
+            "file": "inv_001.pdf",
+            "index": 1,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 966,
+            "ms": 7128
+          },
+          {
+            "file": "inv_002.pdf",
+            "index": 2,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 899,
+            "ms": 6336
+          },
+          {
+            "file": "inv_003.pdf",
+            "index": 3,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.86,
+            "errors": [],
+            "repair": false,
+            "tokens": 894,
+            "ms": 6404
+          },
+          {
+            "file": "inv_004.pdf",
+            "index": 4,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: 'Object storage' != 'Object storage 1 TB'",
+              "line_items[0].qty: 1.0 != 4.0"
+            ],
+            "confidence": 0.97,
+            "errors": [
+              "line_amount_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2211,
+            "ms": 13803
+          },
+          {
+            "file": "inv_005.pdf",
+            "index": 5,
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 1883,
+            "ms": 11219
+          },
+          {
+            "file": "inv_006.pdf",
+            "index": 6,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '6 x Data connector setup' != 'Data connector setup'",
+              "line_items[1].description: '2 x Dashboard build (hours)' != 'Dashboard build (hours)'"
+            ],
+            "confidence": 0.97,
+            "errors": [],
+            "repair": false,
+            "tokens": 813,
+            "ms": 5695
+          },
+          {
+            "file": "inv_007.pdf",
+            "index": 7,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 891,
+            "ms": 6257
+          },
+          {
+            "file": "inv_008.pdf",
+            "index": 8,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 747,
+            "ms": 4752
+          },
+          {
+            "file": "inv_009.pdf",
+            "index": 9,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '1 x Roll-up banner' != 'Roll-up banner'",
+              "line_items[1].description: '10 x Design proof round' != 'Design proof round'",
+              "line_items[2].description: '12 x Business cards (500)' != 'Business cards (500)'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 906,
+            "ms": 6598
+          },
+          {
+            "file": "inv_010.pdf",
+            "index": 10,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: 'Object storage' != 'Object storage 1 TB'",
+              "line_items[0].qty: 1.0 != 2.0"
+            ],
+            "confidence": 0.97,
+            "errors": [
+              "line_amount_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2419,
+            "ms": 15825
+          },
+          {
+            "file": "inv_011.pdf",
+            "index": 11,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 842,
+            "ms": 5778
+          },
+          {
+            "file": "inv_012.pdf",
+            "index": 12,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.97,
+            "errors": [],
+            "repair": false,
+            "tokens": 808,
+            "ms": 5489
+          },
+          {
+            "file": "inv_013.pdf",
+            "index": 13,
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2229,
+            "ms": 14653
+          },
+          {
+            "file": "inv_014.pdf",
+            "index": 14,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 822,
+            "ms": 5623
+          },
+          {
+            "file": "inv_015.pdf",
+            "index": 15,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "invoice_no: 'RE-26-843' != 'RE-26-8437'",
+              "line_items[0].description: '4 x Analytics seat licence' != 'Analytics seat licence'",
+              "line_items[1].description: '1 x API usage block' != 'API usage block'"
+            ],
+            "confidence": 0.86,
+            "errors": [],
+            "repair": false,
+            "tokens": 809,
+            "ms": 5733
+          },
+          {
+            "file": "inv_016.pdf",
+            "index": 16,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 901,
+            "ms": 6245
+          },
+          {
+            "file": "inv_017.pdf",
+            "index": 17,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 757,
+            "ms": 4970
+          },
+          {
+            "file": "inv_018.pdf",
+            "index": 18,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '7 x Data connector setup' != 'Data connector setup'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 740,
+            "ms": 4811
+          },
+          {
+            "file": "inv_019.pdf",
+            "index": 19,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 903,
+            "ms": 6755
+          },
+          {
+            "file": "inv_020.pdf",
+            "index": 20,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 816,
+            "ms": 5835
+          }
+        ]
+      }
+    }
+  ]
+}

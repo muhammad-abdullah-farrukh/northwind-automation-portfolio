@@ -1,0 +1,205 @@
+{
+  "name": "InvoiceIQ - P4 job + signed callback test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "invoiceiq-p4-test",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a01",
+      "name": "Receive PDF",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "webhookId": "5f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/v1/jobs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ 'n8n-p4-' + $execution.id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "file"
+            },
+            {
+              "parameterType": "formData",
+              "name": "schema",
+              "value": "invoice"
+            },
+            {
+              "parameterType": "formData",
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a02",
+      "name": "Submit job to OpsCore",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0],
+      "credentials": {
+        "httpHeaderAuth": { "id": "OG274HC1nDMgGRkJ", "name": "OpsCore n8n key" }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 10,
+        "resumeUnit": "minutes",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a03",
+      "name": "Wait for signed callback",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [480, 0],
+      "webhookId": "6a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rebuild exactly what OpsCore signed: \"<timestamp>.<raw body bytes>\" (OpsCore DECISIONS D26).\n// The raw body comes from the Wait node's rawBody option, so JSON parsing can't reorder keys.\nconst item = $input.first();\nconst headers = item.json.headers || {};\nconst raw = (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8');\nconst timestamp = Number(headers['x-opscore-timestamp']);\nreturn [{\n  json: {\n    to_sign: `${headers['x-opscore-timestamp']}.${raw}`,\n    signature: headers['x-opscore-signature'] || '',\n    age_s: Math.round(Date.now() / 1000 - timestamp),\n    result: JSON.parse(raw),\n  },\n}];"
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a04",
+      "name": "Build signing string",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ $json.to_sign }}",
+        "dataPropertyName": "computed",
+        "encoding": "hex"
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a05",
+      "name": "HMAC-SHA256",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "credentials": {
+        "crypto": { "id": "Nzkiw1JkzqHunApe", "name": "OpsCore callback HMAC" }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1a1b2c3-0000-4000-8000-000000000001",
+              "leftValue": "={{ 'sha256=' + $json.computed }}",
+              "rightValue": "={{ $json.signature }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c1a1b2c3-0000-4000-8000-000000000002",
+              "leftValue": "={{ Math.abs($json.age_s) }}",
+              "rightValue": 300,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a06",
+      "name": "Signature valid and fresh?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1200, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a0000000-0000-4000-8000-000000000001", "name": "verified", "value": true, "type": "boolean" },
+            { "id": "a0000000-0000-4000-8000-000000000002", "name": "job_id", "value": "={{ $json.result.job_id }}", "type": "string" },
+            { "id": "a0000000-0000-4000-8000-000000000003", "name": "status", "value": "={{ $json.result.status }}", "type": "string" },
+            { "id": "a0000000-0000-4000-8000-000000000004", "name": "vendor", "value": "={{ $json.result.data ? $json.result.data.vendor : null }}", "type": "string" },
+            { "id": "a0000000-0000-4000-8000-000000000005", "name": "invoice_no", "value": "={{ $json.result.data ? $json.result.data.invoice_no : null }}", "type": "string" },
+            { "id": "a0000000-0000-4000-8000-000000000006", "name": "total", "value": "={{ $json.result.data ? $json.result.data.total : null }}", "type": "number" },
+            { "id": "a0000000-0000-4000-8000-000000000007", "name": "overall_confidence", "value": "={{ $json.result.confidence ? $json.result.confidence.overall : null }}", "type": "number" },
+            { "id": "a0000000-0000-4000-8000-000000000008", "name": "callback_age_s", "value": "={{ $json.age_s }}", "type": "number" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a07",
+      "name": "Verified result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1440, -100]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "b0000000-0000-4000-8000-000000000001", "name": "verified", "value": false, "type": "boolean" },
+            { "id": "b0000000-0000-4000-8000-000000000002", "name": "reason", "value": "={{ ('sha256=' + $json.computed) !== $json.signature ? 'signature mismatch' : 'stale timestamp' }}", "type": "string" },
+            { "id": "b0000000-0000-4000-8000-000000000003", "name": "job_id", "value": "={{ $json.result.job_id }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b7c4a52-6f0e-4d1a-9a35-1c2d3e4f5a08",
+      "name": "Rejected callback",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1440, 100]
+    }
+  ],
+  "connections": {
+    "Receive PDF": { "main": [[{ "node": "Submit job to OpsCore", "type": "main", "index": 0 }]] },
+    "Submit job to OpsCore": { "main": [[{ "node": "Wait for signed callback", "type": "main", "index": 0 }]] },
+    "Wait for signed callback": { "main": [[{ "node": "Build signing string", "type": "main", "index": 0 }]] },
+    "Build signing string": { "main": [[{ "node": "HMAC-SHA256", "type": "main", "index": 0 }]] },
+    "HMAC-SHA256": { "main": [[{ "node": "Signature valid and fresh?", "type": "main", "index": 0 }]] },
+    "Signature valid and fresh?": {
+      "main": [
+        [{ "node": "Verified result", "type": "main", "index": 0 }],
+        [{ "node": "Rejected callback", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

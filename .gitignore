@@ -1,0 +1,26 @@
+# Secrets — never commit
+**/.env
+**/.secrets/
+!**/.env.example
+
+# Raw screen recordings: unedited (chat windows, popups, account details) and too large for GitHub
+videos/raw/
+
+# Internal build brief (working notes and local paths), kept out of the public repo
+/Automation_Portfolio_Build_Brief.md
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local MCP config (references env vars only, but machine-specific)
+.mcp.json

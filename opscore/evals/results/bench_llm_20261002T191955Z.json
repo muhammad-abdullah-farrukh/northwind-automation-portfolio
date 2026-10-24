@@ -1,0 +1,346 @@
+{
+  "ran_at": "2026-10-02T19:19:55.126284+00:00",
+  "provider": "openai_compat",
+  "base_url": "http://ollama:11434/v1",
+  "page_text_max_chars": 2000,
+  "reasoning_effort": "none",
+  "site_prompt": "site_enrich_v1",
+  "extract_prompt": "invoice_extract_v1",
+  "invoices": "21-40",
+  "results": [
+    {
+      "model": "qwen3:4b-instruct-2507-q4_K_M",
+      "load_ms": 559,
+      "enrich": {
+        "sites": 0,
+        "valid": 0,
+        "llm_ms_p50": null,
+        "llm_ms_max": null,
+        "fetch_plus_llm_ms_p95": null,
+        "rows": []
+      },
+      "extract": {
+        "docs": 20,
+        "exact_match": 9,
+        "status_as_expected": 17,
+        "ms_p50": 5958,
+        "dev": {
+          "docs": 0,
+          "exact_match": 0,
+          "status_as_expected": 0,
+          "repairs": 0,
+          "ms_p50": null,
+          "ms_max": null,
+          "field_errors": {}
+        },
+        "held_out": {
+          "docs": 20,
+          "exact_match": 9,
+          "status_as_expected": 17,
+          "repairs": 3,
+          "ms_p50": 5958,
+          "ms_max": 16603,
+          "field_errors": {
+            "line_items.description": 14,
+            "invoice_no": 2,
+            "line_items.qty": 1
+          }
+        },
+        "rows": [
+          {
+            "file": "inv_021.pdf",
+            "index": 21,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '6 x Onboarding workshop' != 'Onboarding workshop'",
+              "line_items[1].description: '11 x API usage block' != 'API usage block'"
+            ],
+            "confidence": 0.97,
+            "errors": [],
+            "repair": false,
+            "tokens": 833,
+            "ms": 5660
+          },
+          {
+            "file": "inv_022.pdf",
+            "index": 22,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 991,
+            "ms": 6853
+          },
+          {
+            "file": "inv_023.pdf",
+            "index": 23,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '12 x Voice-over session (hours)' != 'Voice-over session (hours)'",
+              "line_items[1].description: '4 x Colour grading' != 'Colour grading'"
+            ],
+            "confidence": 0.99,
+            "errors": [],
+            "repair": true,
+            "tokens": 2080,
+            "ms": 13306
+          },
+          {
+            "file": "inv_024.pdf",
+            "index": 24,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '6 x Dashboard build (hours) @ $99.78' != 'Dashboard build (hours)'"
+            ],
+            "confidence": 0.97,
+            "errors": [],
+            "repair": false,
+            "tokens": 741,
+            "ms": 4976
+          },
+          {
+            "file": "inv_025.pdf",
+            "index": 25,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 842,
+            "ms": 5908
+          },
+          {
+            "file": "inv_026.pdf",
+            "index": 26,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 759,
+            "ms": 4791
+          },
+          {
+            "file": "inv_027.pdf",
+            "index": 27,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '8 x Analytics seat licence' != 'Analytics seat licence'",
+              "line_items[1].description: '5 x Onboarding workshop' != 'Onboarding workshop'"
+            ],
+            "confidence": 0.86,
+            "errors": [],
+            "repair": false,
+            "tokens": 825,
+            "ms": 5737
+          },
+          {
+            "file": "inv_028.pdf",
+            "index": 28,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "line_items[1].description: 'Object storage' != 'Object storage 1 TB'",
+              "line_items[1].qty: 1.0 != 8.0"
+            ],
+            "confidence": 0.97,
+            "errors": [
+              "line_amount_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2418,
+            "ms": 16603
+          },
+          {
+            "file": "inv_029.pdf",
+            "index": 29,
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2255,
+            "ms": 15767
+          },
+          {
+            "file": "inv_030.pdf",
+            "index": 30,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "invoice_no: 'BA00934' != 'BA009349'",
+              "line_items[0].description: '6 x Data connector setup' != 'Data connector setup'",
+              "line_items[1].description: '3.5 x Dashboard build (hours)' != 'Dashboard build (hours)'"
+            ],
+            "confidence": 0.44,
+            "errors": [],
+            "repair": false,
+            "tokens": 818,
+            "ms": 6008
+          },
+          {
+            "file": "inv_031.pdf",
+            "index": 31,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "invoice_no: 'BH-0450' != 'BH-04507'"
+            ],
+            "confidence": 0.58,
+            "errors": [],
+            "repair": false,
+            "tokens": 898,
+            "ms": 6968
+          },
+          {
+            "file": "inv_032.pdf",
+            "index": 32,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 757,
+            "ms": 4948
+          },
+          {
+            "file": "inv_033.pdf",
+            "index": 33,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '4 x API usage block @ 130,01 EUR' != 'API usage block'"
+            ],
+            "confidence": 0.86,
+            "errors": [],
+            "repair": false,
+            "tokens": 756,
+            "ms": 5290
+          },
+          {
+            "file": "inv_034.pdf",
+            "index": 34,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[1].description: 'Object storage' != 'Object storage 1 TB'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 894,
+            "ms": 6271
+          },
+          {
+            "file": "inv_035.pdf",
+            "index": 35,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 901,
+            "ms": 7090
+          },
+          {
+            "file": "inv_036.pdf",
+            "index": 36,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '3.5 x Dashboard build (hours) @ $121.51' != 'Dashboard build (hours)'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 750,
+            "ms": 5174
+          },
+          {
+            "file": "inv_037.pdf",
+            "index": 37,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 861,
+            "ms": 6072
+          },
+          {
+            "file": "inv_038.pdf",
+            "index": 38,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 894,
+            "ms": 6735
+          },
+          {
+            "file": "inv_039.pdf",
+            "index": 39,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '6 x Analytics seat licence' != 'Analytics seat licence'"
+            ],
+            "confidence": 0.86,
+            "errors": [],
+            "repair": false,
+            "tokens": 745,
+            "ms": 4991
+          },
+          {
+            "file": "inv_040.pdf",
+            "index": 40,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 824,
+            "ms": 5499
+          }
+        ]
+      }
+    }
+  ]
+}

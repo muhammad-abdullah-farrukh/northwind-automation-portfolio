@@ -1,0 +1,25 @@
+# P6 local CI proof: the same three steps as .github/workflows/ci.yml, run on 2026-10-19T20:06Z
+# (inside the compose api container for OpsCore; host Python for LeadRouter's stdlib-only tests)
+
+$ python -m pytest   (opscore)
+........................................................................ [ 88%]
+...................                                                      [100%]
+163 passed in 9.92s
+
+$ python -m unittest discover -s tests   (leadrouter)
+Ran 11 tests in 0.037s
+
+OK
+
+$ python -m evals.run_evals ci --baseline evals/baseline.json   (opscore)
+saved evals/results/ci_20261019T161500Z_invoices_v2.json
+saved evals/results/ci_20261019T194222Z_invoices_v1.json
+saved evals/results/ci_20261019T195922Z_leads_leads.json
+wrote evals/report_ci.md
+CI EVAL GATE PASS
+
+# Gate self-check: a deliberately degraded copy of the v2 run (accuracy -10 points, one new wrong total reaching done)
+GATE FAIL
+  degraded_copy: test_same_template: accuracy 83.1 is 10.0 points below baseline 93.1 (limit 5.0)
+  degraded_copy: test_same_template: new wrong money/number/invoice-number values reached done: [('inv_049.pdf', 'total')]
+exit=1 (expected 1)

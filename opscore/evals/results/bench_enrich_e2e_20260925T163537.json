@@ -1,0 +1,102 @@
+[
+  {
+    "domain": "buffer.com",
+    "ms": 4797,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm unavailable: timeout"
+  },
+  {
+    "domain": "ghost.org",
+    "ms": 4917,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm skipped: time budget used up by the website fetch"
+  },
+  {
+    "domain": "plausible.io",
+    "ms": 3617,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Analytics SaaS",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "transistor.fm",
+    "ms": 3293,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Podcast hosting",
+    "size_band_guess": "unknown",
+    "rule_score": 75,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "kit.com",
+    "ms": 4717,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm unavailable: timeout"
+  },
+  {
+    "domain": "usefathom.com",
+    "ms": 4721,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm unavailable: timeout"
+  },
+  {
+    "domain": "simpleanalytics.com",
+    "ms": 2831,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 50,
+    "note": "industry and size are LLM guesses; website unreachable: ConnectTimeout"
+  },
+  {
+    "domain": "buttondown.com",
+    "ms": 5064,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm skipped: time budget used up by the website fetch"
+  },
+  {
+    "domain": "basecamp.com",
+    "ms": 3830,
+    "status": 200,
+    "cached": false,
+    "industry_guess": "Project management software",
+    "size_band_guess": "unknown",
+    "rule_score": 85,
+    "note": "industry and size are LLM guesses"
+  },
+  {
+    "domain": "python.org",
+    "ms": 4714,
+    "status": 200,
+    "cached": false,
+    "industry_guess": null,
+    "size_band_guess": null,
+    "rule_score": 65,
+    "note": "industry and size are LLM guesses; llm unavailable: timeout"
+  }
+]

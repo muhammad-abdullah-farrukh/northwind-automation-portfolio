@@ -1,0 +1,21 @@
+P4 "done when": n8n submits a job to OpsCore and receives the signed callback.
+Workflow: invoiceiq/p4_job_callback_test.json ("InvoiceIQ - P4 job + signed callback test"), n8n 2.x, manual test runs.
+Date: 2026-10-03. Synthetic invoices only (evals/data/invoices).
+
+Run 1 - genuine callback (n8n execution 1, inv_002.pdf)
+  n8n webhook 17:40:17Z -> POST http://host.docker.internal:8000/v1/jobs -> 202 {"job_id":"job_01M41DME40WB0YTC9WNYXR78YX","status":"queued"}
+  OpsCore worker extracted the PDF, then POSTed the signed result to the n8n Wait node's resume URL
+    (localhost:5678 mapped to host.docker.internal, TLS verified against n8n's pinned cert, DECISIONS D26)
+  webhook_deliveries: attempt 1 -> HTTP 200, 190 ms
+  Callback headers seen by n8n: x-opscore-timestamp, x-opscore-signature, x-opscore-job-id
+  n8n recomputed HMAC-SHA256("<timestamp>.<raw body>") with the shared secret -> IF true branch
+  "Verified result": verified=true, status=done, vendor="Copperleaf Print Co.", invoice_no="INV-1626",
+                     total=1617.67, overall_confidence=1, callback_age_s=0
+  Execution 1 status: success, 17:40:17.897Z -> 17:40:40.485Z (22.6 s end to end, local GPU LLM)
+
+Run 2 - forged callback (n8n execution 2, inv_003.pdf)
+  A callback with a wrong signature (sha256=000...0, job_id "job_forged") was POSTed to the waiting resume URL first.
+  n8n: IF false branch -> "Rejected callback": verified=false, reason="signature mismatch". "Verified result" did not run.
+  The genuine OpsCore callback for job_01M41DPECBNWY72MYWV8DKEW1X then reached an execution that had already finished:
+    webhook_deliveries attempts 1-4 -> HTTP 409 "The execution "2 has finished already."", each attempt logged
+    (17:41:30.7Z, 17:41:31.8Z, 17:41:33.3Z, 17:41:36.1Z at the time of capture).

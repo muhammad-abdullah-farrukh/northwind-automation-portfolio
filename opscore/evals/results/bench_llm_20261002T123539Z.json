@@ -1,0 +1,554 @@
+{
+  "ran_at": "2026-10-02T12:35:39.590270+00:00",
+  "provider": "openai_compat",
+  "base_url": "http://ollama:11434/v1",
+  "page_text_max_chars": 2000,
+  "reasoning_effort": "none",
+  "results": [
+    {
+      "model": "granite4.2:3b",
+      "load_ms": 9523,
+      "enrich": {
+        "sites": 10,
+        "valid": 10,
+        "llm_ms_p50": 2797,
+        "llm_ms_max": 3427,
+        "fetch_plus_llm_ms_p95": 6001,
+        "rows": [
+          {
+            "url": "https://buffer.com",
+            "fetch_ms": 1950,
+            "llm_ms": 3427,
+            "tokens": 716,
+            "valid": true,
+            "industry": "Social media management SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://ghost.org",
+            "fetch_ms": 2922,
+            "llm_ms": 2800,
+            "tokens": 735,
+            "valid": true,
+            "industry": "Content management system (CMS)",
+            "size": "unknown"
+          },
+          {
+            "url": "https://plausible.io",
+            "fetch_ms": 302,
+            "llm_ms": 2913,
+            "tokens": 765,
+            "valid": true,
+            "industry": "Analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://transistor.fm",
+            "fetch_ms": 908,
+            "llm_ms": 2464,
+            "tokens": 712,
+            "valid": true,
+            "industry": "Podcast hosting and distribution",
+            "size": "unknown"
+          },
+          {
+            "url": "https://kit.com",
+            "fetch_ms": 973,
+            "llm_ms": 2542,
+            "tokens": 714,
+            "valid": true,
+            "industry": "Creator platform",
+            "size": "unknown"
+          },
+          {
+            "url": "https://usefathom.com",
+            "fetch_ms": 1649,
+            "llm_ms": 2665,
+            "tokens": 715,
+            "valid": true,
+            "industry": "Analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://simpleanalytics.com",
+            "fetch_ms": 3206,
+            "llm_ms": 2795,
+            "tokens": 741,
+            "valid": true,
+            "industry": "Analytics SaaS",
+            "size": "51-200"
+          },
+          {
+            "url": "https://buttondown.com",
+            "fetch_ms": 1661,
+            "llm_ms": 3054,
+            "tokens": 807,
+            "valid": true,
+            "industry": "Newsletter SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://basecamp.com",
+            "fetch_ms": 1042,
+            "llm_ms": 2916,
+            "tokens": 805,
+            "valid": true,
+            "industry": "Project management SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://python.org",
+            "fetch_ms": 1844,
+            "llm_ms": 2684,
+            "tokens": 775,
+            "valid": true,
+            "industry": "Programming language",
+            "size": "unknown"
+          }
+        ]
+      },
+      "extract": {
+        "docs": 5,
+        "exact_match": 1,
+        "status_as_expected": 4,
+        "ms_p50": 9799,
+        "rows": [
+          {
+            "file": "inv_001.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.95,
+            "errors": [],
+            "repair": false,
+            "tokens": 952,
+            "ms": 7225
+          },
+          {
+            "file": "inv_002.pdf",
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-05-15'",
+              "total: 1667.67 != 1617.67"
+            ],
+            "confidence": 0.68,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2166,
+            "ms": 12154
+          },
+          {
+            "file": "inv_003.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '12 x Analytics seat licence @ 30,29 EUR = 363,48 EUR' != 'Analytics seat licence'",
+              "line_items[1].description: '5 x API usage block @ 115,38 EUR = 576,90 EUR' != 'API usage block'",
+              "line_items[2].description: '4 x Onboarding workshop @ 879,11 EUR = 3.516,44 EUR' != 'Onboarding workshop'"
+            ],
+            "confidence": 0.95,
+            "errors": [],
+            "repair": false,
+            "tokens": 923,
+            "ms": 6070
+          },
+          {
+            "file": "inv_004.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "vendor: 'Indus Cloud Services (Pvt) Ltd INVOICE' != 'Indus Cloud Services (Pvt) Ltd'"
+            ],
+            "confidence": 0.95,
+            "errors": [],
+            "repair": true,
+            "tokens": 2207,
+            "ms": 12063
+          },
+          {
+            "file": "inv_005.pdf",
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "line_items[0].description: '8 Colour grading' != 'Colour grading'"
+            ],
+            "confidence": 0.7,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 1891,
+            "ms": 9799
+          }
+        ]
+      }
+    },
+    {
+      "model": "qwen3:4b-instruct-2507-q4_K_M",
+      "load_ms": 34983,
+      "enrich": {
+        "sites": 10,
+        "valid": 10,
+        "llm_ms_p50": 3153,
+        "llm_ms_max": 3818,
+        "fetch_plus_llm_ms_p95": 6449,
+        "rows": [
+          {
+            "url": "https://buffer.com",
+            "fetch_ms": 1950,
+            "llm_ms": 3818,
+            "tokens": 696,
+            "valid": true,
+            "industry": "Social media management SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://ghost.org",
+            "fetch_ms": 2922,
+            "llm_ms": 2871,
+            "tokens": 700,
+            "valid": true,
+            "industry": "Content Publishing SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://plausible.io",
+            "fetch_ms": 302,
+            "llm_ms": 3137,
+            "tokens": 728,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://transistor.fm",
+            "fetch_ms": 908,
+            "llm_ms": 3169,
+            "tokens": 718,
+            "valid": true,
+            "industry": "Podcast Hosting SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://kit.com",
+            "fetch_ms": 973,
+            "llm_ms": 3003,
+            "tokens": 704,
+            "valid": true,
+            "industry": "Email Marketing SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://usefathom.com",
+            "fetch_ms": 1649,
+            "llm_ms": 2931,
+            "tokens": 701,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://simpleanalytics.com",
+            "fetch_ms": 3206,
+            "llm_ms": 3243,
+            "tokens": 730,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "51-200"
+          },
+          {
+            "url": "https://buttondown.com",
+            "fetch_ms": 1661,
+            "llm_ms": 3080,
+            "tokens": 763,
+            "valid": true,
+            "industry": "Newsletter SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://basecamp.com",
+            "fetch_ms": 1042,
+            "llm_ms": 3421,
+            "tokens": 784,
+            "valid": true,
+            "industry": "Project Management SaaS",
+            "size": "1-10"
+          },
+          {
+            "url": "https://python.org",
+            "fetch_ms": 1844,
+            "llm_ms": 3223,
+            "tokens": 782,
+            "valid": true,
+            "industry": "Programming Language",
+            "size": "unknown"
+          }
+        ]
+      },
+      "extract": {
+        "docs": 5,
+        "exact_match": 5,
+        "status_as_expected": 4,
+        "ms_p50": 6678,
+        "rows": [
+          {
+            "file": "inv_001.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 966,
+            "ms": 8518
+          },
+          {
+            "file": "inv_002.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 899,
+            "ms": 6490
+          },
+          {
+            "file": "inv_003.pdf",
+            "expected": "done",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [],
+            "repair": false,
+            "tokens": 894,
+            "ms": 6678
+          },
+          {
+            "file": "inv_004.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 903,
+            "ms": 6224
+          },
+          {
+            "file": "inv_005.pdf",
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 1883,
+            "ms": 11968
+          }
+        ]
+      }
+    },
+    {
+      "model": "qwen3.5:4b",
+      "load_ms": 41906,
+      "enrich": {
+        "sites": 10,
+        "valid": 10,
+        "llm_ms_p50": 3915,
+        "llm_ms_max": 4148,
+        "fetch_plus_llm_ms_p95": 7110,
+        "rows": [
+          {
+            "url": "https://buffer.com",
+            "fetch_ms": 1950,
+            "llm_ms": 4053,
+            "tokens": 706,
+            "valid": true,
+            "industry": "Social media management SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://ghost.org",
+            "fetch_ms": 2922,
+            "llm_ms": 3617,
+            "tokens": 711,
+            "valid": true,
+            "industry": "Publishing software",
+            "size": "unknown"
+          },
+          {
+            "url": "https://plausible.io",
+            "fetch_ms": 302,
+            "llm_ms": 4013,
+            "tokens": 746,
+            "valid": true,
+            "industry": "Web analytics software",
+            "size": "unknown"
+          },
+          {
+            "url": "https://transistor.fm",
+            "fetch_ms": 908,
+            "llm_ms": 4066,
+            "tokens": 723,
+            "valid": true,
+            "industry": "Podcast hosting SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://kit.com",
+            "fetch_ms": 973,
+            "llm_ms": 3704,
+            "tokens": 701,
+            "valid": true,
+            "industry": "Email marketing SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://usefathom.com",
+            "fetch_ms": 1649,
+            "llm_ms": 3584,
+            "tokens": 704,
+            "valid": true,
+            "industry": "Web analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://simpleanalytics.com",
+            "fetch_ms": 3206,
+            "llm_ms": 3904,
+            "tokens": 725,
+            "valid": true,
+            "industry": "Digital marketing SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://buttondown.com",
+            "fetch_ms": 1661,
+            "llm_ms": 4148,
+            "tokens": 774,
+            "valid": true,
+            "industry": "Newsletter SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://basecamp.com",
+            "fetch_ms": 1042,
+            "llm_ms": 3790,
+            "tokens": 788,
+            "valid": true,
+            "industry": "Project management SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://python.org",
+            "fetch_ms": 1844,
+            "llm_ms": 3926,
+            "tokens": 767,
+            "valid": true,
+            "industry": "Programming language",
+            "size": "unknown"
+          }
+        ]
+      },
+      "extract": {
+        "docs": 5,
+        "exact_match": 0,
+        "status_as_expected": 5,
+        "ms_p50": 9262,
+        "rows": [
+          {
+            "file": "inv_001.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-06-10'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1004,
+            "ms": 11587
+          },
+          {
+            "file": "inv_002.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-05-15'"
+            ],
+            "confidence": 0.99,
+            "errors": [],
+            "repair": false,
+            "tokens": 932,
+            "ms": 9165
+          },
+          {
+            "file": "inv_003.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-05-09'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 925,
+            "ms": 9262
+          },
+          {
+            "file": "inv_004.pdf",
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-02-03'",
+              "line_items[0].description: 'Object storage' != 'Object storage 1 TB'",
+              "line_items[0].qty: 1.0 != 4.0",
+              "line_items[0].unit_price: 27524.0 != 6881.0"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 929,
+            "ms": 8634
+          },
+          {
+            "file": "inv_005.pdf",
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-04-30'"
+            ],
+            "confidence": 0.71,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 1964,
+            "ms": 16269
+          }
+        ]
+      }
+    }
+  ]
+}

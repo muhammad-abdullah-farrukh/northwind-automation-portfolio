@@ -1,0 +1,327 @@
+{
+  "ran_at": "2026-10-02T19:22:08.682690+00:00",
+  "provider": "openai_compat",
+  "base_url": "http://ollama:11434/v1",
+  "page_text_max_chars": 2000,
+  "reasoning_effort": "none",
+  "site_prompt": "site_enrich_v1",
+  "extract_prompt": "invoice_extract_v2",
+  "invoices": "21-40",
+  "results": [
+    {
+      "model": "qwen3:4b-instruct-2507-q4_K_M",
+      "load_ms": 521,
+      "enrich": {
+        "sites": 0,
+        "valid": 0,
+        "llm_ms_p50": null,
+        "llm_ms_max": null,
+        "fetch_plus_llm_ms_p95": null,
+        "rows": []
+      },
+      "extract": {
+        "docs": 20,
+        "exact_match": 15,
+        "status_as_expected": 19,
+        "ms_p50": 6056,
+        "dev": {
+          "docs": 0,
+          "exact_match": 0,
+          "status_as_expected": 0,
+          "repairs": 0,
+          "ms_p50": null,
+          "ms_max": null,
+          "field_errors": {}
+        },
+        "held_out": {
+          "docs": 20,
+          "exact_match": 15,
+          "status_as_expected": 19,
+          "repairs": 1,
+          "ms_p50": 6056,
+          "ms_max": 15943,
+          "field_errors": {
+            "due_date": 3,
+            "line_items.description": 2,
+            "invoice_no": 1
+          }
+        },
+        "rows": [
+          {
+            "file": "inv_021.pdf",
+            "index": 21,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1072,
+            "ms": 8101
+          },
+          {
+            "file": "inv_022.pdf",
+            "index": 22,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-04-20'",
+              "line_items[2].description: 'Object storage' != 'Object storage 1 TB'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1215,
+            "ms": 7143
+          },
+          {
+            "file": "inv_023.pdf",
+            "index": 23,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1063,
+            "ms": 6127
+          },
+          {
+            "file": "inv_024.pdf",
+            "index": 24,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 954,
+            "ms": 4555
+          },
+          {
+            "file": "inv_025.pdf",
+            "index": 25,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-08-09'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1053,
+            "ms": 5472
+          },
+          {
+            "file": "inv_026.pdf",
+            "index": 26,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1003,
+            "ms": 5037
+          },
+          {
+            "file": "inv_027.pdf",
+            "index": 27,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1065,
+            "ms": 5889
+          },
+          {
+            "file": "inv_028.pdf",
+            "index": 28,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1225,
+            "ms": 7324
+          },
+          {
+            "file": "inv_029.pdf",
+            "index": 29,
+            "expected": "needs_review",
+            "status": "needs_review",
+            "exact": true,
+            "diffs": [],
+            "confidence": 0.72,
+            "errors": [
+              "total_mismatch"
+            ],
+            "repair": true,
+            "tokens": 2743,
+            "ms": 15943
+          },
+          {
+            "file": "inv_030.pdf",
+            "index": 30,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1057,
+            "ms": 6453
+          },
+          {
+            "file": "inv_031.pdf",
+            "index": 31,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "due_date: None != '2026-03-21'"
+            ],
+            "confidence": 0.99,
+            "errors": [],
+            "repair": false,
+            "tokens": 1126,
+            "ms": 6423
+          },
+          {
+            "file": "inv_032.pdf",
+            "index": 32,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1001,
+            "ms": 4974
+          },
+          {
+            "file": "inv_033.pdf",
+            "index": 33,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 989,
+            "ms": 4986
+          },
+          {
+            "file": "inv_034.pdf",
+            "index": 34,
+            "expected": "done",
+            "status": "done",
+            "exact": false,
+            "diffs": [
+              "line_items[1].description: 'Object storage' != 'Object storage 1 TB'"
+            ],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1138,
+            "ms": 6254
+          },
+          {
+            "file": "inv_035.pdf",
+            "index": 35,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1145,
+            "ms": 6743
+          },
+          {
+            "file": "inv_036.pdf",
+            "index": 36,
+            "expected": "done",
+            "status": "needs_review",
+            "exact": false,
+            "diffs": [
+              "invoice_no: 'BA00080' != 'BA000801'"
+            ],
+            "confidence": 0.58,
+            "errors": [],
+            "repair": false,
+            "tokens": 959,
+            "ms": 4584
+          },
+          {
+            "file": "inv_037.pdf",
+            "index": 37,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1103,
+            "ms": 5985
+          },
+          {
+            "file": "inv_038.pdf",
+            "index": 38,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1138,
+            "ms": 6772
+          },
+          {
+            "file": "inv_039.pdf",
+            "index": 39,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 987,
+            "ms": 4975
+          },
+          {
+            "file": "inv_040.pdf",
+            "index": 40,
+            "expected": "done",
+            "status": "done",
+            "exact": true,
+            "diffs": [],
+            "confidence": 1.0,
+            "errors": [],
+            "repair": false,
+            "tokens": 1070,
+            "ms": 5484
+          }
+        ]
+      }
+    }
+  ]
+}

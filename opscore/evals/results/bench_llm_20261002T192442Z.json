@@ -1,0 +1,140 @@
+{
+  "ran_at": "2026-10-02T19:24:42.192673+00:00",
+  "provider": "openai_compat",
+  "base_url": "http://ollama:11434/v1",
+  "page_text_max_chars": 2000,
+  "reasoning_effort": "none",
+  "site_prompt": "site_enrich_v2",
+  "extract_prompt": "invoice_extract_v2",
+  "invoices": null,
+  "results": [
+    {
+      "model": "qwen3:4b-instruct-2507-q4_K_M",
+      "load_ms": 572,
+      "enrich": {
+        "sites": 10,
+        "valid": 10,
+        "llm_ms_p50": 3094,
+        "llm_ms_max": 3969,
+        "fetch_plus_llm_ms_p95": 4831,
+        "rows": [
+          {
+            "url": "https://buffer.com",
+            "fetch_ms": 535,
+            "llm_ms": 3969,
+            "tokens": 739,
+            "valid": true,
+            "industry": "Social Media SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://ghost.org",
+            "fetch_ms": 1019,
+            "llm_ms": 3203,
+            "tokens": 744,
+            "valid": true,
+            "industry": "Content Publishing SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://plausible.io",
+            "fetch_ms": 237,
+            "llm_ms": 3109,
+            "tokens": 774,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://transistor.fm",
+            "fetch_ms": 451,
+            "llm_ms": 3079,
+            "tokens": 752,
+            "valid": true,
+            "industry": "Podcast Hosting SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://kit.com",
+            "fetch_ms": 472,
+            "llm_ms": 2923,
+            "tokens": 741,
+            "valid": true,
+            "industry": "Email Marketing SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://usefathom.com",
+            "fetch_ms": 363,
+            "llm_ms": 2870,
+            "tokens": 745,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://simpleanalytics.com",
+            "fetch_ms": 1622,
+            "llm_ms": 3209,
+            "tokens": 772,
+            "valid": true,
+            "industry": "Web Analytics SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://buttondown.com",
+            "fetch_ms": 688,
+            "llm_ms": 3071,
+            "tokens": 807,
+            "valid": true,
+            "industry": "Newsletter SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://basecamp.com",
+            "fetch_ms": 896,
+            "llm_ms": 3418,
+            "tokens": 828,
+            "valid": true,
+            "industry": "Project Management SaaS",
+            "size": "unknown"
+          },
+          {
+            "url": "https://python.org",
+            "fetch_ms": 1093,
+            "llm_ms": 3063,
+            "tokens": 816,
+            "valid": true,
+            "industry": "Programming Language",
+            "size": "unknown"
+          }
+        ]
+      },
+      "extract": {
+        "docs": 0,
+        "exact_match": 0,
+        "status_as_expected": 0,
+        "ms_p50": null,
+        "dev": {
+          "docs": 0,
+          "exact_match": 0,
+          "status_as_expected": 0,
+          "repairs": 0,
+          "ms_p50": null,
+          "ms_max": null,
+          "field_errors": {}
+        },
+        "held_out": {
+          "docs": 0,
+          "exact_match": 0,
+          "status_as_expected": 0,
+          "repairs": 0,
+          "ms_p50": null,
+          "ms_max": null,
+          "field_errors": {}
+        },
+        "rows": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+# Northwind automation portfolio: tests + eval gate (brief §4.5, OpsCore DECISIONS D29).
+# The eval step replays model answers recorded during the live eval runs (evals/cassettes), so CI needs no GPU,
+# no API key and no network to a model, and is deterministic. It still runs all of OpsCore's own code (parsing,
+# validation, repair, confidence, routing) and LeadRouter's scoring steps, and fails if any score moves from the
+# baseline or a recorded answer is missing (i.e. a prompt or model changed without a re-recorded live run).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests-and-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: opscore
+          POSTGRES_PASSWORD: ci-only-throwaway  # disposable CI container, not a real credential
+          POSTGRES_DB: opscore
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U opscore"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: opscore
+      POSTGRES_PASSWORD: ci-only-throwaway
+      POSTGRES_DB: opscore
+      REDIS_URL: redis://localhost:6379/0
+      LLM_PROVIDER: none
+      SECRETS_DIR: /tmp/opscore-secrets
+      PROMPTS_DIR: ${{ github.workspace }}/opscore/prompts  # the default /app/prompts only exists in the container
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: opscore/requirements.lock
+
+      - name: Install OpsCore dependencies
+        working-directory: opscore
+        run: pip install -r requirements.lock
+
+      - name: OpsCore tests (API, extraction, jobs, callbacks, eval harness)
+        working-directory: opscore
+        run: python -m pytest
+
+      - name: LeadRouter Code-step tests
+        working-directory: leadrouter
+        run: python -m unittest discover -s tests -v
+
+      - name: Eval gate (replays the recorded live runs, must match the baseline exactly)
+        working-directory: opscore
+        run: python -m evals.run_evals ci --baseline evals/baseline.json --report-out evals/report_ci.md
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: opscore/evals/report_ci.md
+          if-no-files-found: ignore

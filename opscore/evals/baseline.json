@@ -1,0 +1,1086 @@
+{
+ "written_at": "2026-10-19T20:05:49.911255+00:00",
+ "max_drop_points": 5.0,
+ "runs": [
+  {
+   "run_id": "20261019T161500Z_invoices_v2",
+   "suite": "invoices",
+   "tag": "v2",
+   "config": {
+    "prompt": "invoice_extract_v2",
+    "provider": "openai_compat",
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "slices": [
+     "dev",
+     "val",
+     "test_same_template",
+     "test_new_layout"
+    ],
+    "repeats": 3,
+    "seed": 42,
+    "temperature": null,
+    "json_mode": "structured",
+    "reasoning_effort": "none"
+   },
+   "env": {
+    "model_digest": "0edcdef34593",
+    "ollama_version": "0.34.4",
+    "hardware": "NVIDIA GeForce GTX 1660 SUPER, 6 GB VRAM (driver 610.88)",
+    "key_settings": {
+     "provider": "openai_compat",
+     "model_digest": "0edcdef34593",
+     "temperature": 0,
+     "seed": 42,
+     "json_mode": "structured",
+     "reasoning_effort": "none"
+    }
+   },
+   "cassette": "evals/cassettes/20261019T161500Z_invoices_v2.jsonl",
+   "slices": {
+    "dev": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9938,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 20,
+         "invoice_date": 20,
+         "due_date": 19,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 16,
+        "status_ok": 17,
+        "line_tp": 42,
+        "line_pred": 45,
+        "line_exp": 45,
+        "line_precision": 0.9333,
+        "line_recall": 0.9333,
+        "line_f1": 0.9333,
+        "reconciles": 18,
+        "reconciles_n": 18,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 7,
+        "wrong_done_docs": 1,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "due_date": 1
+        },
+        "llm_ms_p50": 6248,
+        "llm_ms_p95": 16376,
+        "tokens_mean": 1636,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "val": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9812,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 20,
+         "invoice_date": 20,
+         "due_date": 17,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 15,
+        "status_ok": 19,
+        "line_tp": 36,
+        "line_pred": 39,
+        "line_exp": 39,
+        "line_precision": 0.9231,
+        "line_recall": 0.9231,
+        "line_f1": 0.9231,
+        "reconciles": 19,
+        "reconciles_n": 19,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 2,
+        "wrong_done_docs": 4,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "due_date": 3,
+         "line_items.description": 2
+        },
+        "llm_ms_p50": 5991,
+        "llm_ms_p95": 16324,
+        "tokens_mean": 1240,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "test_same_template": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9313,
+        "per_field": {
+         "vendor": 19,
+         "invoice_no": 18,
+         "invoice_date": 19,
+         "due_date": 17,
+         "currency": 19,
+         "subtotal": 19,
+         "tax": 19,
+         "total": 19
+        },
+        "doc_exact": 15,
+        "status_ok": 17,
+        "line_tp": 43,
+        "line_pred": 45,
+        "line_exp": 46,
+        "line_precision": 0.9556,
+        "line_recall": 0.9348,
+        "line_f1": 0.9451,
+        "reconciles": 17,
+        "reconciles_n": 18,
+        "first_call_invalid": 1,
+        "llm_errors": 0,
+        "repairs": 4,
+        "wrong_done_docs": 2,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "due_date": 1,
+         "line_items.description": 1
+        },
+        "llm_ms_p50": 6683,
+        "llm_ms_p95": 14087,
+        "tokens_mean": 1377,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9313,
+        "per_field": {
+         "vendor": 19,
+         "invoice_no": 18,
+         "invoice_date": 19,
+         "due_date": 17,
+         "currency": 19,
+         "subtotal": 19,
+         "tax": 19,
+         "total": 19
+        },
+        "doc_exact": 15,
+        "status_ok": 17,
+        "line_tp": 43,
+        "line_pred": 45,
+        "line_exp": 46,
+        "line_precision": 0.9556,
+        "line_recall": 0.9348,
+        "line_f1": 0.9451,
+        "reconciles": 17,
+        "reconciles_n": 18,
+        "first_call_invalid": 1,
+        "llm_errors": 0,
+        "repairs": 4,
+        "wrong_done_docs": 2,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "due_date": 1,
+         "line_items.description": 1
+        },
+        "llm_ms_p50": 6633,
+        "llm_ms_p95": 13668,
+        "tokens_mean": 1377,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9313,
+        "per_field": {
+         "vendor": 19,
+         "invoice_no": 18,
+         "invoice_date": 19,
+         "due_date": 17,
+         "currency": 19,
+         "subtotal": 19,
+         "tax": 19,
+         "total": 19
+        },
+        "doc_exact": 15,
+        "status_ok": 17,
+        "line_tp": 43,
+        "line_pred": 45,
+        "line_exp": 46,
+        "line_precision": 0.9556,
+        "line_recall": 0.9348,
+        "line_f1": 0.9451,
+        "reconciles": 17,
+        "reconciles_n": 18,
+        "first_call_invalid": 1,
+        "llm_errors": 0,
+        "repairs": 4,
+        "wrong_done_docs": 2,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "due_date": 1,
+         "line_items.description": 1
+        },
+        "llm_ms_p50": 6545,
+        "llm_ms_p95": 13308,
+        "tokens_mean": 1377,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "test_new_layout": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 0.9844,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 7,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 8,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 5,
+        "status_ok": 4,
+        "line_tp": 16,
+        "line_pred": 19,
+        "line_exp": 19,
+        "line_precision": 0.8421,
+        "line_recall": 0.8421,
+        "line_f1": 0.8421,
+        "reconciles": 5,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 7,
+        "wrong_done_docs": 0,
+        "critical_cases": [],
+        "other_wrong_done": {},
+        "llm_ms_p50": 14599,
+        "llm_ms_p95": 16762,
+        "tokens_mean": 2522,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 0.9844,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 7,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 8,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 5,
+        "status_ok": 4,
+        "line_tp": 16,
+        "line_pred": 19,
+        "line_exp": 19,
+        "line_precision": 0.8421,
+        "line_recall": 0.8421,
+        "line_f1": 0.8421,
+        "reconciles": 5,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 7,
+        "wrong_done_docs": 0,
+        "critical_cases": [],
+        "other_wrong_done": {},
+        "llm_ms_p50": 13906,
+        "llm_ms_p95": 14404,
+        "tokens_mean": 2522,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 0.9844,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 7,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 8,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 5,
+        "status_ok": 4,
+        "line_tp": 16,
+        "line_pred": 19,
+        "line_exp": 19,
+        "line_precision": 0.8421,
+        "line_recall": 0.8421,
+        "line_f1": 0.8421,
+        "reconciles": 5,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 7,
+        "wrong_done_docs": 0,
+        "critical_cases": [],
+        "other_wrong_done": {},
+        "llm_ms_p50": 13677,
+        "llm_ms_p95": 14319,
+        "tokens_mean": 2522,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "run_id": "20261019T194222Z_invoices_v1",
+   "suite": "invoices",
+   "tag": "v1",
+   "config": {
+    "prompt": "invoice_extract_v1",
+    "provider": "openai_compat",
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "slices": [
+     "dev",
+     "val",
+     "test_same_template",
+     "test_new_layout"
+    ],
+    "repeats": 3,
+    "seed": 42,
+    "temperature": null,
+    "json_mode": "structured",
+    "reasoning_effort": "none"
+   },
+   "env": {
+    "model_digest": "0edcdef34593",
+    "ollama_version": "0.34.4",
+    "hardware": "NVIDIA GeForce GTX 1660 SUPER, 6 GB VRAM (driver 610.88)",
+    "key_settings": {
+     "provider": "openai_compat",
+     "model_digest": "0edcdef34593",
+     "temperature": 0,
+     "seed": 42,
+     "json_mode": "structured",
+     "reasoning_effort": "none"
+    }
+   },
+   "cassette": "evals/cassettes/20261019T194222Z_invoices_v1.jsonl",
+   "slices": {
+    "dev": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 1.0,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 20,
+         "invoice_date": 20,
+         "due_date": 20,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 12,
+        "status_ok": 18,
+        "line_tp": 31,
+        "line_pred": 45,
+        "line_exp": 45,
+        "line_precision": 0.6889,
+        "line_recall": 0.6889,
+        "line_f1": 0.6889,
+        "reconciles": 18,
+        "reconciles_n": 18,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 4,
+        "wrong_done_docs": 6,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "line_items.description": 6
+        },
+        "llm_ms_p50": 6317,
+        "llm_ms_p95": 14832,
+        "tokens_mean": 1115,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "val": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9875,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 18,
+         "invoice_date": 20,
+         "due_date": 20,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 9,
+        "status_ok": 17,
+        "line_tp": 25,
+        "line_pred": 39,
+        "line_exp": 39,
+        "line_precision": 0.641,
+        "line_recall": 0.641,
+        "line_f1": 0.641,
+        "reconciles": 19,
+        "reconciles_n": 19,
+        "first_call_invalid": 1,
+        "llm_errors": 0,
+        "repairs": 3,
+        "wrong_done_docs": 8,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "line_items.description": 8
+        },
+        "llm_ms_p50": 6064,
+        "llm_ms_p95": 15804,
+        "tokens_mean": 1042,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "test_same_template": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9938,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 19,
+         "invoice_date": 20,
+         "due_date": 20,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 10,
+        "status_ok": 18,
+        "line_tp": 25,
+        "line_pred": 46,
+        "line_exp": 46,
+        "line_precision": 0.5435,
+        "line_recall": 0.5435,
+        "line_f1": 0.5435,
+        "reconciles": 18,
+        "reconciles_n": 18,
+        "first_call_invalid": 1,
+        "llm_errors": 0,
+        "repairs": 4,
+        "wrong_done_docs": 8,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "line_items.description": 8
+        },
+        "llm_ms_p50": 6745,
+        "llm_ms_p95": 15782,
+        "tokens_mean": 1112,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9938,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 19,
+         "invoice_date": 20,
+         "due_date": 20,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 10,
+        "status_ok": 18,
+        "line_tp": 25,
+        "line_pred": 46,
+        "line_exp": 46,
+        "line_precision": 0.5435,
+        "line_recall": 0.5435,
+        "line_f1": 0.5435,
+        "reconciles": 18,
+        "reconciles_n": 18,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 3,
+        "wrong_done_docs": 8,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "line_items.description": 8
+        },
+        "llm_ms_p50": 6088,
+        "llm_ms_p95": 11366,
+        "tokens_mean": 1046,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 20,
+        "field_accuracy": 0.9938,
+        "per_field": {
+         "vendor": 20,
+         "invoice_no": 19,
+         "invoice_date": 20,
+         "due_date": 20,
+         "currency": 20,
+         "subtotal": 20,
+         "tax": 20,
+         "total": 20
+        },
+        "doc_exact": 10,
+        "status_ok": 18,
+        "line_tp": 25,
+        "line_pred": 46,
+        "line_exp": 46,
+        "line_precision": 0.5435,
+        "line_recall": 0.5435,
+        "line_f1": 0.5435,
+        "reconciles": 18,
+        "reconciles_n": 18,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 3,
+        "wrong_done_docs": 8,
+        "critical_cases": [],
+        "other_wrong_done": {
+         "line_items.description": 8
+        },
+        "llm_ms_p50": 6095,
+        "llm_ms_p95": 11152,
+        "tokens_mean": 1046,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    },
+    "test_new_layout": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 0.9844,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 8,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 7,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 3,
+        "status_ok": 2,
+        "line_tp": 13,
+        "line_pred": 21,
+        "line_exp": 19,
+        "line_precision": 0.619,
+        "line_recall": 0.6842,
+        "line_f1": 0.65,
+        "reconciles": 4,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 5,
+        "wrong_done_docs": 1,
+        "critical_cases": [
+         [
+          "alt_001.pdf",
+          "line_items.qty"
+         ],
+         [
+          "alt_001.pdf",
+          "line_items.unit_price"
+         ]
+        ],
+        "other_wrong_done": {},
+        "llm_ms_p50": 14243,
+        "llm_ms_p95": 20956,
+        "tokens_mean": 1769,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 1.0,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 8,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 8,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 4,
+        "status_ok": 3,
+        "line_tp": 14,
+        "line_pred": 21,
+        "line_exp": 19,
+        "line_precision": 0.6667,
+        "line_recall": 0.7368,
+        "line_f1": 0.7,
+        "reconciles": 5,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 5,
+        "wrong_done_docs": 1,
+        "critical_cases": [
+         [
+          "alt_001.pdf",
+          "line_items.qty"
+         ],
+         [
+          "alt_001.pdf",
+          "line_items.unit_price"
+         ]
+        ],
+        "other_wrong_done": {},
+        "llm_ms_p50": 11614,
+        "llm_ms_p95": 16074,
+        "tokens_mean": 1762,
+        "cost_usd_total": null
+       }
+      },
+      {
+       "metrics": {
+        "n": 8,
+        "field_accuracy": 1.0,
+        "per_field": {
+         "vendor": 8,
+         "invoice_no": 8,
+         "invoice_date": 8,
+         "due_date": 8,
+         "currency": 8,
+         "subtotal": 8,
+         "tax": 8,
+         "total": 8
+        },
+        "doc_exact": 4,
+        "status_ok": 3,
+        "line_tp": 14,
+        "line_pred": 21,
+        "line_exp": 19,
+        "line_precision": 0.6667,
+        "line_recall": 0.7368,
+        "line_f1": 0.7,
+        "reconciles": 5,
+        "reconciles_n": 7,
+        "first_call_invalid": 0,
+        "llm_errors": 0,
+        "repairs": 5,
+        "wrong_done_docs": 1,
+        "critical_cases": [
+         [
+          "alt_001.pdf",
+          "line_items.qty"
+         ],
+         [
+          "alt_001.pdf",
+          "line_items.unit_price"
+         ]
+        ],
+        "other_wrong_done": {},
+        "llm_ms_p50": 10951,
+        "llm_ms_p95": 15989,
+        "tokens_mean": 1762,
+        "cost_usd_total": null
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "run_id": "20261019T195922Z_leads_leads",
+   "suite": "leads",
+   "tag": "leads",
+   "config": {
+    "prompt": "lead_icp_v1",
+    "provider": "openai_compat",
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "slices": [
+     "leads_dev",
+     "leads_test"
+    ],
+    "repeats": 3,
+    "seed": 42,
+    "temperature": null,
+    "json_mode": "structured",
+    "reasoning_effort": "none"
+   },
+   "env": {
+    "model_digest": "0edcdef34593",
+    "ollama_version": "0.34.4",
+    "hardware": "NVIDIA GeForce GTX 1660 SUPER, 6 GB VRAM (driver 610.88)",
+    "key_settings": {
+     "provider": "openai_compat",
+     "model_digest": "0edcdef34593",
+     "temperature": 0,
+     "seed": 42,
+     "json_mode": "structured",
+     "reasoning_effort": "none"
+    }
+   },
+   "cassette": "evals/cassettes/20261019T195922Z_leads_leads.jsonl",
+   "slices": {
+    "leads_dev": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 14,
+        "final_correct": 11,
+        "ai_correct": 9,
+        "json_valid": 14,
+        "spam_hit": 2,
+        "spam_pred": 2,
+        "spam_actual": 2,
+        "hot_hit": 5,
+        "hot_pred": 8,
+        "hot_actual": 5,
+        "confusion_final": {
+         "hot": {
+          "hot": 5,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 3,
+          "warm": 1,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 3,
+          "spam": 0,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 2,
+          "null": 0
+         }
+        },
+        "confusion_ai": {
+         "hot": {
+          "hot": 5,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 3,
+          "spam": 0,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 1,
+          "spam": 1,
+          "null": 0
+         }
+        },
+        "llm_ms_p50": 3093,
+        "llm_ms_p95": 3362
+       }
+      }
+     ]
+    },
+    "leads_test": {
+     "repeats": [
+      {
+       "metrics": {
+        "n": 16,
+        "final_correct": 10,
+        "ai_correct": 10,
+        "json_valid": 16,
+        "spam_hit": 3,
+        "spam_pred": 4,
+        "spam_actual": 3,
+        "hot_hit": 4,
+        "hot_pred": 8,
+        "hot_actual": 4,
+        "confusion_final": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 4,
+          "warm": 1,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 1,
+          "cold": 2,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "confusion_ai": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 5,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 3,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "llm_ms_p50": 3336,
+        "llm_ms_p95": 3941
+       }
+      },
+      {
+       "metrics": {
+        "n": 16,
+        "final_correct": 10,
+        "ai_correct": 10,
+        "json_valid": 16,
+        "spam_hit": 3,
+        "spam_pred": 4,
+        "spam_actual": 3,
+        "hot_hit": 4,
+        "hot_pred": 8,
+        "hot_actual": 4,
+        "confusion_final": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 4,
+          "warm": 1,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 1,
+          "cold": 2,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "confusion_ai": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 5,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 3,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "llm_ms_p50": 3192,
+        "llm_ms_p95": 3646
+       }
+      },
+      {
+       "metrics": {
+        "n": 16,
+        "final_correct": 10,
+        "ai_correct": 10,
+        "json_valid": 16,
+        "spam_hit": 3,
+        "spam_pred": 4,
+        "spam_actual": 3,
+        "hot_hit": 4,
+        "hot_pred": 8,
+        "hot_actual": 4,
+        "confusion_final": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 4,
+          "warm": 1,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 1,
+          "cold": 2,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "confusion_ai": {
+         "hot": {
+          "hot": 4,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "warm": {
+          "hot": 5,
+          "warm": 0,
+          "cold": 0,
+          "spam": 0,
+          "null": 0
+         },
+         "cold": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 3,
+          "spam": 1,
+          "null": 0
+         },
+         "spam": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0,
+          "spam": 3,
+          "null": 0
+         }
+        },
+        "llm_ms_p50": 3234,
+        "llm_ms_p95": 3639
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

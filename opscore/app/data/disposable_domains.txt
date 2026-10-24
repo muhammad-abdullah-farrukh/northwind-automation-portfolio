@@ -1,0 +1,37 @@
+# Disposable / throwaway mailbox domains — hand-curated seed list.
+# A fuller list (CC0, github.com/disposable-email-domains) can replace this file later; see DECISIONS.md.
+10minutemail.com
+20minutemail.com
+dispostable.com
+dropmail.me
+emailondeck.com
+fakeinbox.com
+getairmail.com
+getnada.com
+guerrillamail.biz
+guerrillamail.com
+guerrillamail.de
+guerrillamail.net
+guerrillamail.org
+guerrillamailblock.com
+maildrop.cc
+mailinator.com
+mailinator.net
+mailnesia.com
+mintemail.com
+mohmal.com
+mytemp.email
+sharklasers.com
+spamgourmet.com
+temp-mail.io
+temp-mail.org
+tempail.com
+tempmail.com
+tempmail.dev
+tempr.email
+throwawaymail.com
+trashmail.com
+trashmail.de
+yopmail.com
+yopmail.fr
+yopmail.net

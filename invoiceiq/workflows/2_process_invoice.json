@@ -1,0 +1,1251 @@
+{
+  "name": "InvoiceIQ - 2 Process invoice",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Process one invoice\nCalled by **1 Intake** once per PDF, so every invoice gets its own execution and its own callback URL.\n\n1. Submit the PDF to **OpsCore** `/v1/jobs` and wait for the signed callback (HMAC-SHA256 over `timestamp.body`, 5 min freshness).\n2. Route: **auto-approve** (OpsCore `done`, confidence >= 0.85, totals valid) · **Slack review** (`needs_review`) · **duplicate** (OpsCore or ledger match) · **failed**.\n3. Store in Postgres `finance.*`, append to the **Northwind Ledger** sheet, embed for the Q&A agent, post a summary.",
+        "height": 250,
+        "width": 760,
+        "color": 7
+      },
+      "id": "35585c48-2c74-4eb9-a207-efc0887d57b0",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "cef78836-c112-4943-af35-851864f29056",
+      "name": "From intake",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "action": "hash",
+        "binaryData": true,
+        "binaryPropertyName": "file",
+        "type": "SHA256",
+        "dataPropertyName": "file_sha256",
+        "encoding": "hex"
+      },
+      "id": "f3063f51-fe59-4d13-a032-a4a37d6cec93",
+      "name": "SHA-256 of file",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The Crypto node returns only JSON; put the PDF back for the upload.\nreturn [{ json: $json, binary: $('From intake').first().binary }];\n"
+      },
+      "id": "d2485e4f-97ee-4811-b930-caa149a6a326",
+      "name": "Re-attach PDF",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        330,
+        170
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/v1/jobs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ 'invoiceiq-' + $execution.id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "file"
+            },
+            {
+              "parameterType": "formData",
+              "name": "schema",
+              "value": "invoice"
+            },
+            {
+              "parameterType": "formData",
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "915cf09c-ce97-4850-9b57-aee44960368a",
+      "name": "Submit to OpsCore",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OG274HC1nDMgGRkJ",
+          "name": "OpsCore n8n key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 20,
+        "resumeUnit": "minutes",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "0953c57d-7b03-4b1e-86f4-cb2143d30a30",
+      "name": "Wait for signed callback",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ],
+      "webhookId": "aeaec242-7ca4-49cc-92c7-74c0e3dcbe63"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rebuild exactly what OpsCore signed: \"<timestamp>.<raw body bytes>\" (OpsCore DECISIONS D26).\n// The raw body comes from the Wait node's rawBody option, so JSON parsing can't reorder keys.\nconst meta = $('SHA-256 of file').first().json;          // intake metadata + file_sha256\nconst job = $('Submit to OpsCore').first().json;         // { job_id, status: \"queued\" }\nconst item = $input.first();\nconst headers = item.json.headers || {};\nconst base = { ...meta, job_id: job.job_id };\nif (!headers['x-opscore-signature'] || !item.binary?.data) {\n  // The Wait node timed out: no callback arrived.\n  return [{ json: { ...base, timed_out: true, to_sign: '', signature: '', age_s: 0, result: null } }];\n}\nconst raw = (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8');\nconst timestamp = Number(headers['x-opscore-timestamp']);\nreturn [{\n  json: {\n    ...base,\n    timed_out: false,\n    to_sign: `${headers['x-opscore-timestamp']}.${raw}`,\n    signature: headers['x-opscore-signature'],\n    age_s: Math.round(Date.now() / 1000 - timestamp),\n    result: JSON.parse(raw),\n  },\n}];\n"
+      },
+      "id": "1fd20eaf-7d4d-427e-97ac-d859d7c7d75b",
+      "name": "Build signing string",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ $json.to_sign }}",
+        "dataPropertyName": "computed",
+        "encoding": "hex"
+      },
+      "id": "922c3c25-e98e-4732-93de-63ce8bc1b707",
+      "name": "HMAC-SHA256",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "Nzkiw1JkzqHunApe",
+          "name": "OpsCore callback HMAC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd0c80f5-727e-48cc-9e4f-16fb8027f5e6",
+              "leftValue": "={{ $json.timed_out }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "31288d35-05c2-46d4-ae4a-631685979d4d",
+              "leftValue": "={{ 'sha256=' + $json.computed }}",
+              "rightValue": "={{ $json.signature }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f45ca39d-d597-4c8a-9df8-c0361dda614e",
+              "leftValue": "={{ Math.abs($json.age_s) }}",
+              "rightValue": 300,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ffd49c06-e811-4ef4-bbc4-1a23fcf9f714",
+      "name": "Callback trusted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Second duplicate check (OpsCore already compares vendor + number + total) and vendor history for anomaly flags.\nwith p as (select $1::jsonb as j)\nselect\n  (select i.job_id from finance.invoices i, p\n    where regexp_replace(lower(i.vendor), '[^a-z0-9]', '', 'g') = regexp_replace(lower(p.j->>'vendor'), '[^a-z0-9]', '', 'g')\n      and regexp_replace(upper(i.invoice_no), '[^0-9A-Z]', '', 'g') = regexp_replace(upper(p.j->>'invoice_no'), '[^0-9A-Z]', '', 'g')\n    order by i.created_at limit 1) as ledger_duplicate_of,\n  (select count(*) from finance.invoices i, p where lower(i.vendor) = lower(p.j->>'vendor') and i.currency = p.j->>'currency') as vendor_invoice_count,\n  (select round(avg(i.total), 2) from finance.invoices i, p where lower(i.vendor) = lower(p.j->>'vendor') and i.currency = p.j->>'currency') as vendor_avg_total",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify({ vendor: $json.result?.data?.vendor ?? '', invoice_no: $json.result?.data?.invoice_no ?? '', currency: $json.result?.data?.currency ?? '' }) ] }}"
+        }
+      },
+      "id": "6220ac5c-3e17-4206-9337-64027a8323ee",
+      "name": "Ledger lookup",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1540,
+        -120
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "id6KMgtuW0bKZRBj",
+          "name": "Postgres - finance writer"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const v = $('HMAC-SHA256').first().json;     // verified callback + intake metadata\nconst ledger = $input.first().json;\nconst r = v.result;\nconst d = r.data;\nconst confidence = r.confidence?.overall ?? 0;\n\nlet route;\nif (r.status === 'failed' || !d) route = 'failed';\nelse if (r.duplicate_of || ledger.ledger_duplicate_of) route = 'duplicate';\nelse if (r.status === 'done') route = 'auto_approve';      // OpsCore: validation clean and confidence >= 0.85\nelse route = 'needs_review';\n\n// Anomaly flags are informational: they appear in Slack and the sheet but never block an invoice.\nconst anomalies = [];\nif (d) {\n  const n = Number(ledger.vendor_invoice_count || 0);\n  const avg = Number(ledger.vendor_avg_total || 0);\n  if (n === 0) anomalies.push('new vendor (no earlier invoices in the ledger)');\n  else if (avg > 0 && d.total >= 3 * avg) anomalies.push(`total is ${(d.total / avg).toFixed(1)}x this vendor's average of ${avg.toFixed(2)} ${d.currency}`);\n  if (d.due_date && d.due_date < d.invoice_date) anomalies.push('due date is before the invoice date');\n  if (d.invoice_date > $now.toISODate()) anomalies.push(`invoice date is in the future (${d.invoice_date})`);\n}\nconst issues = (r.validation?.errors || []).map(e => `${e.field}: ${e.message}`);\n\nreturn [{\n  json: {\n    ...v, route, confidence, anomalies, issues,\n    invoice: d,\n    duplicate_of: r.duplicate_of || ledger.ledger_duplicate_of || null,\n    duplicate_source: r.duplicate_of ? 'OpsCore' : (ledger.ledger_duplicate_of ? 'ledger' : null),\n  },\n}];\n"
+      },
+      "id": "4d5d20ea-9527-4a35-aba2-4b2e11c39dbc",
+      "name": "Decide route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "70408a06-2eb6-429b-be40-8fa8d6eee633",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "auto_approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "auto-approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5cb0b9e1-70bb-42fa-9312-c6ef2ad1b7bb",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "needs_review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "needs review"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8e57930d-9230-4f1e-80de-f467b3395859",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "duplicate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "duplicate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "055f0c71-42ea-4fea-b023-a122d63fcc0e",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6bf79257-a111-4619-99b7-27ab17490a53",
+      "name": "Route",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1980,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, status: 'auto_approved', approved_by: `auto (confidence ${$json.confidence} >= 0.85)`, edits: {} } }];\n"
+      },
+      "id": "8396914b-8fb3-4cc0-979f-b8cc480f3e68",
+      "name": "Auto-approve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#finance-approvals",
+          "mode": "name"
+        },
+        "message": "=:mag: *Invoice needs review*: {{ $json.invoice.vendor }} · *{{ $json.invoice.invoice_no }}*\nTotal *{{ $json.invoice.currency }} {{ $json.invoice.total.toFixed(2) }}* (subtotal {{ $json.invoice.subtotal.toFixed(2) }} + tax {{ $json.invoice.tax.toFixed(2) }}) · dated {{ $json.invoice.invoice_date }}{{ $json.invoice.due_date ? ' · due ' + $json.invoice.due_date : '' }}\nConfidence *{{ $json.confidence }}* (auto-approve needs 0.85) · {{ $json.invoice.line_items.length }} line items · file `{{ $json.file_name }}` · from {{ $json.source }}\n{{ $json.issues.length ? ':warning: Checks: ' + $json.issues.join('; ') : 'Checks: all passed' }}\n{{ $json.anomalies.length ? ':triangular_flag_on_post: ' + $json.anomalies.join('; ') : '' }}",
+        "responseType": "customForm",
+        "defineForm": "json",
+        "jsonOutput": "[\n  {\n    \"fieldLabel\": \"Decision\",\n    \"fieldType\": \"dropdown\",\n    \"requiredField\": true,\n    \"fieldOptions\": {\n      \"values\": [\n        {\n          \"option\": \"Approve as extracted\"\n        },\n        {\n          \"option\": \"Approve with corrections\"\n        },\n        {\n          \"option\": \"Reject\"\n        }\n      ]\n    }\n  },\n  {\n    \"fieldLabel\": \"Corrected total\",\n    \"fieldType\": \"number\",\n    \"placeholder\": \"only if the total is wrong\"\n  },\n  {\n    \"fieldLabel\": \"Corrected invoice number\",\n    \"fieldType\": \"text\",\n    \"placeholder\": \"only if the number is wrong\"\n  },\n  {\n    \"fieldLabel\": \"Note\",\n    \"fieldType\": \"textarea\",\n    \"placeholder\": \"optional, kept with the review\"\n  }\n]",
+        "options": {
+          "messageButtonLabel": "Review invoice",
+          "responseFormTitle": "=Review {{ $json.invoice.invoice_no }} ({{ $json.invoice.vendor }})",
+          "responseFormDescription": "=Extracted total {{ $json.invoice.currency }} {{ $json.invoice.total.toFixed(2) }}, confidence {{ $json.confidence }}. {{ $json.issues.length ? 'Checks: ' + $json.issues.join('; ') : '' }}",
+          "responseFormButtonLabel": "Submit decision",
+          "limitWaitTime": {
+            "values": {
+              "limitType": "afterTimeInterval",
+              "resumeAmount": 24,
+              "resumeUnit": "hours"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "023627d4-978e-45c3-ad87-895111ebf166",
+      "name": "Ask #finance-approvals",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2240,
+        -180
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "pCj2nk1dA4VTMlZL",
+          "name": "Slack - InvoiceIQ"
+        }
+      },
+      "webhookId": "40af76d9-ddff-403d-9301-b641893f60e6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const v = $('Decide route').first().json;\nconst form = $json.data || $json;                 // the Slack form answers, keyed by field label\nconst decision = String(form['Decision'] || '');\nconst invoice = { ...v.invoice };\nconst edits = {};\nif (decision === 'Approve with corrections') {\n  const t = form['Corrected total'];\n  if (t !== undefined && t !== null && String(t).trim() !== '' && Number(t) !== invoice.total) {\n    edits.total = { from: invoice.total, to: Number(t) };\n    invoice.total = Number(t);\n  }\n  const no = String(form['Corrected invoice number'] || '').trim();\n  if (no && no !== invoice.invoice_no) {\n    edits.invoice_no = { from: invoice.invoice_no, to: no };\n    invoice.invoice_no = no;\n  }\n}\nconst approved = decision.startsWith('Approve');\nreturn [{\n  json: {\n    ...v, invoice, edits,\n    decision: decision || 'no answer within 24 h',\n    review_note: String(form['Note'] || ''),\n    status: !approved ? 'rejected' : (Object.keys(edits).length ? 'approved_with_edits' : 'approved'),\n    approved_by: approved ? 'Slack #finance-approvals' : null,\n  },\n}];\n"
+      },
+      "id": "d22b2bc7-d8e7-4cac-94d3-1ee409a2d45f",
+      "name": "Apply decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a16f8a8c-b41f-4d7a-800a-dbb3ac7ea9b4",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "rejected",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "55f01ec1-011d-4d3c-ae69-5170bff73885",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2680,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://host.docker.internal:8000/v1/jobs/{{ $json.job_id }}/review",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ data: $json.invoice, notes: [$json.decision, $json.review_note].filter(Boolean).join(' - ') }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "ebb5cdb1-a27b-4d12-8c74-54aa867b1c0a",
+      "name": "Send review to OpsCore",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2900,
+        -260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OG274HC1nDMgGRkJ",
+          "name": "OpsCore n8n key"
+        }
+      },
+      "notes": "Stores the human-checked data in OpsCore as eval ground truth. A failure here does not block the ledger.",
+      "notesInFlow": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The HTTP node replaced the item with OpsCore's answer; carry the invoice forward and keep the answer.\nreturn [{ json: { ...$('Apply decision').first().json, opscore_review: $json.status || $json.error || null } }];\n"
+      },
+      "id": "eb303838-5c36-40e2-b719-ad820fc20f5f",
+      "name": "Keep review result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $json;\nconst inv = j.invoice;\nconst lines = inv.line_items || [];\nconst search_text = [\n  `Invoice ${inv.invoice_no} from ${inv.vendor}.`,\n  `Invoice date ${inv.invoice_date}${inv.due_date ? `, due ${inv.due_date}` : ''}.`,\n  `Currency ${inv.currency}. Subtotal ${inv.subtotal.toFixed(2)}, tax ${inv.tax.toFixed(2)}, total ${inv.total.toFixed(2)}.`,\n  `Status ${j.status}.`,\n  lines.length ? 'Line items: ' + lines.map((l, i) => `${i + 1}) ${l.description}: ${l.qty} x ${l.unit_price} = ${l.amount}`).join('; ') + '.' : '',\n].filter(Boolean).join(' ');\nreturn [{\n  json: {\n    ...j,\n    search_text,\n    record: {\n      job_id: j.job_id, ...inv, status: j.status, confidence: j.confidence, approved_by: j.approved_by,\n      source: j.source, source_email: j.source_email || null, file_sha256: j.file_sha256, file_name: j.file_name,\n      anomalies: j.anomalies, edits: j.edits || {},\n    },\n  },\n}];\n"
+      },
+      "id": "a5aebe81-b1e7-4660-b97e-5fb431b82740",
+      "name": "Ledger record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3340,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- One statement: invoice + line items + the intake outcome, so a failure leaves nothing half-written.\nwith p as (select $1::jsonb as j),\ninv as (\n  insert into finance.invoices (job_id, invoice_no, vendor, invoice_date, due_date, currency, subtotal, tax, total,\n                                status, confidence, approved_by, source, source_email)\n  select j->>'job_id', j->>'invoice_no', j->>'vendor', (j->>'invoice_date')::date, (j->>'due_date')::date, j->>'currency',\n         (j->>'subtotal')::numeric, (j->>'tax')::numeric, (j->>'total')::numeric,\n         j->>'status', (j->>'confidence')::numeric, j->>'approved_by', j->>'source', j->>'source_email'\n  from p\n  returning id\n),\nli as (\n  insert into finance.line_items (invoice_id, line_no, description, qty, unit_price, amount)\n  select inv.id, l.ord, l.x->>'description', (l.x->>'qty')::numeric, (l.x->>'unit_price')::numeric, (l.x->>'amount')::numeric\n  from inv, p, jsonb_array_elements(p.j->'line_items') with ordinality as l(x, ord)\n  returning 1\n),\nev as (\n  insert into finance.intake_events (job_id, file_sha256, file_name, source, outcome, detail)\n  select j->>'job_id', j->>'file_sha256', j->>'file_name', j->>'source', 'stored',\n         jsonb_build_object('status', j->>'status', 'confidence', j->'confidence', 'anomalies', j->'anomalies', 'edits', j->'edits')\n  from p\n  returning 1\n)\nselect (select id from inv) as invoice_id, (select count(*) from li) as line_items_stored",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify($json.record) ] }}"
+        }
+      },
+      "id": "a54fa7e4-775b-4525-993f-176a6408cfbd",
+      "name": "Store in finance DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3560,
+        -420
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "id6KMgtuW0bKZRBj",
+          "name": "Postgres - finance writer"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $('Ledger record').first().json;\nconst inv = j.invoice;\nreturn [{\n  json: {\n    'Received at': DateTime.fromISO(j.received_at).toFormat('yyyy-LL-dd HH:mm'),\n    'Invoice no': inv.invoice_no,\n    'Vendor': inv.vendor,\n    'Invoice date': inv.invoice_date,\n    'Due date': inv.due_date || '',\n    'Currency': inv.currency,\n    'Subtotal': inv.subtotal,\n    'Tax': inv.tax,\n    'Total': inv.total,\n    'Status': j.status,\n    'Confidence': j.confidence,\n    'Approved by': j.approved_by,\n    'Source': j.source,\n    'Anomalies': j.anomalies.join('; '),\n    'OpsCore job': j.job_id,\n  },\n}];\n"
+      },
+      "id": "d99d9678-fad4-424d-b495-1b9db970d271",
+      "name": "Sheet row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        -560
+      ]
+    },
+    {
+      "id": "ce66f420-154d-4692-afa3-b23f551dda37",
+      "name": "Append to Northwind Ledger",
+      "position": [
+        4000,
+        -560
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iJelT17UaGGxZOlF",
+          "name": "Sheets - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "notes": "Google Sheets values.append with insertDataOption=INSERT_ROWS: Google inserts the row at the end of the table itself, so parallel runs cannot overwrite each other (the Sheets node picked the row number client-side and lost rows on 2026-10-19).",
+      "notesInFlow": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1370DC9fQBB0r_3g6Y_ig9GhnyazPY84rKzMKzOYnnlg/values/Invoices%21A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: [[$json[\"Received at\"], $json[\"Invoice no\"], $json[\"Vendor\"], $json[\"Invoice date\"], $json[\"Due date\"], $json[\"Currency\"], $json[\"Subtotal\"], $json[\"Tax\"], $json[\"Total\"], $json[\"Status\"], $json[\"Confidence\"], $json[\"Approved by\"], $json[\"Source\"], $json[\"Anomalies\"], $json[\"OpsCore job\"]]] }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "invoice_embeddings",
+        "options": {}
+      },
+      "id": "92e57915-e961-4941-bd8b-afc36ec4a917",
+      "name": "Index for the agent",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        3780,
+        -400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "id6KMgtuW0bKZRBj",
+          "name": "Postgres - finance writer"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Ledger record').first().json.search_text }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "invoice_no",
+                "value": "={{ $('Ledger record').first().json.invoice.invoice_no }}"
+              },
+              {
+                "name": "vendor",
+                "value": "={{ $('Ledger record').first().json.invoice.vendor }}"
+              },
+              {
+                "name": "invoice_date",
+                "value": "={{ $('Ledger record').first().json.invoice.invoice_date }}"
+              },
+              {
+                "name": "total",
+                "value": "={{ $('Ledger record').first().json.invoice.currency + ' ' + $('Ledger record').first().json.invoice.total }}"
+              },
+              {
+                "name": "job_id",
+                "value": "={{ $('Ledger record').first().json.job_id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "97661d15-667d-466e-a157-585364988a09",
+      "name": "Invoice summary",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        3880,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "id": "73342ebb-872b-47cd-9521-257da40fba98",
+      "name": "nomic-embed-text",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        3720,
+        -220
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "oYeff6GnAiGlwpDM",
+          "name": "Ollama (local)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#finance-approvals",
+          "mode": "name"
+        },
+        "text": "=:white_check_mark: Stored *{{ $('Ledger record').first().json.invoice.invoice_no }}* from {{ $('Ledger record').first().json.invoice.vendor }} · *{{ $('Ledger record').first().json.invoice.currency }} {{ $('Ledger record').first().json.invoice.total.toFixed(2) }}* · {{ { auto_approved: 'auto-approved', approved: 'approved in Slack', approved_with_edits: 'approved with corrections' }[$('Ledger record').first().json.status] }} (confidence {{ $('Ledger record').first().json.confidence }}){{ Object.keys($('Ledger record').first().json.edits).length ? ' · corrected: ' + Object.entries($('Ledger record').first().json.edits).map(([k, e]) => k + ' ' + e.from + ' -> ' + e.to).join(', ') : '' }}{{ $('Ledger record').first().json.anomalies.length ? '\\n:triangular_flag_on_post: ' + $('Ledger record').first().json.anomalies.join('; ') : '' }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "unfurl_links": false
+        }
+      },
+      "id": "28c42755-bb5b-4382-b5b6-090a2dbf2347",
+      "name": "Post summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        4000,
+        -720
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "pCj2nk1dA4VTMlZL",
+          "name": "Slack - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "webhookId": "152a2548-668e-45c7-a774-4974c32903c1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $json;\nlet outcome, detail;\nif (j.route === undefined) {\n  outcome = 'failed';\n  detail = j.timed_out\n    ? `No callback from OpsCore within 20 minutes (job ${j.job_id})`\n    : `Rejected an untrusted OpsCore callback for job ${j.job_id}: ${('sha256=' + j.computed) !== j.signature ? 'signature mismatch' : `stale timestamp (${j.age_s} s old)`}`;\n} else if (j.route === 'duplicate') {\n  outcome = 'duplicate';\n  detail = `Duplicate of ${j.duplicate_of} (found by ${j.duplicate_source}): ${j.invoice.invoice_no} from ${j.invoice.vendor}, ${j.invoice.currency} ${j.invoice.total.toFixed(2)}`;\n} else if (j.status === 'rejected') {\n  outcome = 'rejected';\n  detail = `Rejected in Slack review (${j.decision})${j.review_note ? ': ' + j.review_note : ''}`;\n} else {\n  outcome = 'failed';\n  detail = `OpsCore could not extract ${j.file_name}: ${(j.issues || []).join('; ') || 'no detail'}`;\n}\nreturn [{\n  json: {\n    outcome, detail, job_id: j.job_id, file_sha256: j.file_sha256, file_name: j.file_name, source: j.source,\n    duplicate_of: j.duplicate_of || null, invoice_no: j.invoice?.invoice_no || null, vendor: j.invoice?.vendor || null,\n    received_at: j.received_at,\n  },\n}];\n"
+      },
+      "id": "4102d1be-8960-4907-a4b4-47712b071702",
+      "name": "Describe exception",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into finance.intake_events (job_id, file_sha256, file_name, source, outcome, detail)\nselect j->>'job_id', j->>'file_sha256', j->>'file_name', j->>'source', j->>'outcome',\n       jsonb_build_object('detail', j->>'detail', 'duplicate_of', j->>'duplicate_of', 'invoice_no', j->>'invoice_no', 'vendor', j->>'vendor')\nfrom (select $1::jsonb as j) p\nreturning id",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify($json) ] }}"
+        }
+      },
+      "id": "7b5268ba-6bd3-4eef-8ead-21a4761d4329",
+      "name": "Log exception",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2700,
+        100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "id6KMgtuW0bKZRBj",
+          "name": "Postgres - finance writer"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $('Describe exception').first().json;\nreturn [{\n  json: {\n    'Received at': DateTime.fromISO(j.received_at).toFormat('yyyy-LL-dd HH:mm'),\n    'File': j.file_name,\n    'Outcome': j.outcome,\n    'Detail': j.detail,\n    'Duplicate of': j.duplicate_of || '',\n    'OpsCore job': j.job_id,\n    'Source': j.source,\n  },\n}];\n"
+      },
+      "id": "550014fa-cbe6-440a-94c6-2333f140c414",
+      "name": "Exception row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        260
+      ]
+    },
+    {
+      "id": "62ca8672-1811-4e3e-a1e3-f8b5e7c363e2",
+      "name": "Append to Exceptions",
+      "position": [
+        2920,
+        260
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iJelT17UaGGxZOlF",
+          "name": "Sheets - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "notes": "Google Sheets values.append with insertDataOption=INSERT_ROWS: Google inserts the row at the end of the table itself, so parallel runs cannot overwrite each other (the Sheets node picked the row number client-side and lost rows on 2026-10-19).",
+      "notesInFlow": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1370DC9fQBB0r_3g6Y_ig9GhnyazPY84rKzMKzOYnnlg/values/Exceptions%21A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: [[$json[\"Received at\"], $json[\"File\"], $json[\"Outcome\"], $json[\"Detail\"], $json[\"Duplicate of\"], $json[\"OpsCore job\"], $json[\"Source\"]]] }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "49675e64-1d62-45fc-bfa7-bdf259131104",
+              "leftValue": "={{ $('Describe exception').first().json.outcome }}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "48fab104-421a-4cef-8d37-d8ebc49b9ef3",
+      "name": "Is it a failure?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2700,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#finance-approvals",
+          "mode": "name"
+        },
+        "text": "={{ ({ duplicate: ':no_entry_sign: Skipped duplicate', rejected: ':x: Rejected' })[$('Describe exception').first().json.outcome] }}: {{ $('Describe exception').first().json.detail }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "unfurl_links": false
+        }
+      },
+      "id": "1370ca1a-f04c-44a3-8216-42931690ae05",
+      "name": "Note in #finance-approvals",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2920,
+        680
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "pCj2nk1dA4VTMlZL",
+          "name": "Slack - InvoiceIQ"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "webhookId": "467576af-bb54-4c66-b412-b92873e0fd8a"
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $('Describe exception').first().json.detail }}"
+      },
+      "id": "5dff0595-1b62-4cc3-864d-257afd20ee8e",
+      "name": "Fail the execution",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2920,
+        460
+      ],
+      "notes": "Hands the failure to workflow 3 (finance.errors + #ops-alerts).",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "From intake": {
+      "main": [
+        [
+          {
+            "node": "SHA-256 of file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SHA-256 of file": {
+      "main": [
+        [
+          {
+            "node": "Re-attach PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-attach PDF": {
+      "main": [
+        [
+          {
+            "node": "Submit to OpsCore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit to OpsCore": {
+      "main": [
+        [
+          {
+            "node": "Wait for signed callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for signed callback": {
+      "main": [
+        [
+          {
+            "node": "Build signing string",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build signing string": {
+      "main": [
+        [
+          {
+            "node": "HMAC-SHA256",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HMAC-SHA256": {
+      "main": [
+        [
+          {
+            "node": "Callback trusted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback trusted?": {
+      "main": [
+        [
+          {
+            "node": "Ledger lookup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Describe exception",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ledger lookup": {
+      "main": [
+        [
+          {
+            "node": "Decide route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide route": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "Auto-approve",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ask #finance-approvals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Describe exception",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Describe exception",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-approve": {
+      "main": [
+        [
+          {
+            "node": "Ledger record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask #finance-approvals": {
+      "main": [
+        [
+          {
+            "node": "Apply decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply decision": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Send review to OpsCore",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Describe exception",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send review to OpsCore": {
+      "main": [
+        [
+          {
+            "node": "Keep review result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep review result": {
+      "main": [
+        [
+          {
+            "node": "Ledger record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ledger record": {
+      "main": [
+        [
+          {
+            "node": "Store in finance DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in finance DB": {
+      "main": [
+        [
+          {
+            "node": "Post summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheet row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Index for the agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet row": {
+      "main": [
+        [
+          {
+            "node": "Append to Northwind Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nomic-embed-text": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Index for the agent",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice summary": {
+      "ai_document": [
+        [
+          {
+            "node": "Index for the agent",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Describe exception": {
+      "main": [
+        [
+          {
+            "node": "Log exception",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exception row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is it a failure?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exception row": {
+      "main": [
+        [
+          {
+            "node": "Append to Exceptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is it a failure?": {
+      "main": [
+        [
+          {
+            "node": "Fail the execution",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note in #finance-approvals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "errorWorkflow": "o00uRb21QVfbgsh9"
+  },
+  "pinData": {},
+  "meta": {},
+  "tags": []
+}
