@@ -66,6 +66,7 @@ Every number links to the run that produced it. Nothing here was typed in from m
 
 Each video is about a minute long, with no voice-over yet. Each was privacy-checked before use ([log](opscore/docs/evidence/privacy_check.txt)), and the shot lists are in [`docs/video_scripts.md`](docs/video_scripts.md).
 - [LeadRouter](videos/Recording_Northwind2_trimmed.mp4) (46 s): a form lead scored, routed hot and alerted.
+  - [LeadRouter Zaps](videos/Recording_Northwind_trimmed.mp4) (21 s): a companion clip with the whole Zap, Zap history and the form feeder Zap.
 - [InvoiceIQ](videos/Recording_Northwind3_trimmed.mp4) (62 s): the n8n flows, the Slack correction, the ledger and the local Q&A agent.
 - [OpsCore](videos/Recording_Northwind4_trimmed.mp4) (59 s): the API, the test suite, the eval report and the CI gate.
 
@@ -76,7 +77,7 @@ opscore/     FastAPI engine, Celery worker, evals (run_evals, cassettes, report)
 invoiceiq/   n8n workflow exports, finance SQL, test invoices, export script
 leadrouter/  Zap documentation, Python Code steps + tests, 15 test leads, Catch Hook sender
 docs/        architecture diagram, screenshots, 60-second video scripts
-videos/      the three trimmed demo videos (raw takes stay local and git-ignored)
+videos/      the trimmed demo videos (raw takes stay local and git-ignored)
 .github/     CI: pytest + LeadRouter tests + eval gate
 ```
 

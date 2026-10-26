@@ -60,3 +60,15 @@ Lead names, emails and companies visible in the images are the synthetic test le
     audio track                                          - removed
   Blurred: nothing needed.
   Shown: local pages only (architecture diagram, Swagger UI, captured test and eval-gate output, eval report, CI workflow). The only credential-like value on screen is the throwaway CI database password already in .github/workflows/ci.yml.
+
+2026-10-26: LeadRouter companion clip (from the first take, recorded 2026-10-22). Watched in full and accepted by the owner; frames checked by eye before that. 1 file:
+  Recording_Northwind_trimmed.mp4 (21.0 s, 1916x872, no audio), cut from the raw take Recording_Northwind.mp4, which is not used anywhere else.
+  Kept: three still screens (the LeadRouter Zap canvas, Zapier's Zap history, the form feeder Zap).
+  Cut or cropped:
+    assistant chat window at the start and the end of the take   - cut
+    desktop notification popup near the end of the take          - cut
+    everything else in the 13-minute take                        - cut
+    audio track                                                  - removed
+  Blurred:
+    browser-extension status pill near the bottom edge of the Zap canvas - blurred in that segment
+  Not shown: account menus, the feeder's POST step settings (hook URL), any Zap or form IDs.

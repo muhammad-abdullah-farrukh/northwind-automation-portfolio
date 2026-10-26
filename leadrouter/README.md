@@ -184,3 +184,5 @@ The Zoho deal is shown from the Zapier side (the data step 16 sent), because Zoh
 ## Video
 
 [`../videos/Recording_Northwind2_trimmed.mp4`](../videos/Recording_Northwind2_trimmed.mp4) is 46 s with no voice-over. It was recorded on 22 Oct 2026 and follows the real FORM-3 run: the form, the run's route, the AI and score steps, the Zoho deal step, `#sales-hot`, the Gmail draft, the log table and `#ops-alerts`. The shot list and what was cut or blurred are in [`../docs/video_scripts.md`](../docs/video_scripts.md), section 3.
+
+[`../videos/Recording_Northwind_trimmed.mp4`](../videos/Recording_Northwind_trimmed.mp4) is a 21 s companion clip, cut from the first take on 22 Oct. It shows three screens: the whole Zap at v4, Zapier's Zap history (runs from 19–21 Oct), and the form feeder Zap (Google Sheets New Spreadsheet Row → Webhooks POST).

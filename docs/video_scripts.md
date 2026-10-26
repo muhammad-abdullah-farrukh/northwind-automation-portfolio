@@ -45,6 +45,9 @@
 - The raw take missed `#sales-hot` and the log table, so those are stills from screenshots taken during the FORM-3 run.
 - The Gmail draft still is T01's draft from the 19 Oct test run, because FORM-3's draft was never captured.
 - `#ops-alerts` shows both the T15 alert and the FORM-4 alert, the error path running live during the re-take.
+- **Companion clip:** `videos/Recording_Northwind_trimmed.mp4`, accepted on 26 Oct, 21 s.
+  - It was cut from the first take, which recorded the wrong tab. That tab still held three useful screens: the whole Zap at v4, Zap history, and the form feeder Zap.
+  - That take was recorded before FORM-3 reached Zapier, so its Zap history shows the 19–21 Oct runs.
 
 Record by 22 Oct (the Zapier trial ends 27 Oct, and premium Zaps stop then). The take submits **one new synthetic hot lead**, which creates one Zoho contact, account and deal, one `#sales-hot` message and one Gmail **draft**. That is expected.
 
